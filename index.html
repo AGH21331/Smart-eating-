@@ -102,7 +102,7 @@
   };
 })();
 </script>
-<style id="SMARTMEAL_V7_PREMIUM">
+<style id="SMARTMEAL_V8_PREMIUM">
 :root{--primary:#10b981;--primary2:#059669;--bg:#f6f8fb;--surface:#fff;--surface2:#f1f5f9;--border:#e2e8f0;--text:#0f172a;--muted:#64748b}
 .dark{--bg:#070b10;--surface:#101720;--surface2:#17202b;--border:#263241;--text:#f8fafc;--muted:#94a3b8}
 body{background:linear-gradient(180deg,#f8fafc 0%,#eef7f3 100%)!important;min-height:100vh}
@@ -114,10 +114,183 @@ button{min-height:44px}
 #scannerLoader{box-shadow:0 12px 40px rgba(15,23,42,.08)}
 #selectedImage{border-radius:18px;object-fit:cover;max-height:260px;width:100%}
 </style>
-<script id="SMARTMEAL_NUMBERS_V7">
+<script id="SMARTMEAL_NUMBERS_V8">
 window.formatNumberEN=function(value,decimals){const n=Number(value);if(!Number.isFinite(n))return '0';return n.toLocaleString('en-US',{minimumFractionDigits:decimals||0,maximumFractionDigits:decimals||0,useGrouping:true});};
 window.toLatinDigits=function(v){return String(v).replace(/[٠-٩]/g,c=>String(c.charCodeAt(0)-0x0660)).replace(/[۰-۹]/g,c=>String(c.charCodeAt(0)-0x06F0));};
 </script>
+<style id="SMARTMEAL_V8_PREMIUM_REDESIGN">
+
+/* SMART MEAL v8 — PREMIUM UI REDESIGN */
+:root{
+ --primary:#10b981;--primary-strong:#059669;--bg:#f5f7f8;--surface:#ffffff;
+ --surface-2:#f0f5f3;--border:#e2e8e6;--text:#10201b;--text-2:#64736e;--text-3:#94a39e;
+ --shadow-sm:0 4px 16px rgba(16,32,27,.06);--shadow-md:0 12px 32px rgba(16,32,27,.09);
+ --shadow-lg:0 20px 50px rgba(16,32,27,.12);
+}
+.dark{
+ --bg:#07110e;--surface:#0e1916;--surface-2:#14231f;--border:#20332e;
+ --text:#f4faf7;--text-2:#a7b8b2;--text-3:#71827c;
+ --shadow-sm:0 4px 18px rgba(0,0,0,.22);--shadow-md:0 12px 34px rgba(0,0,0,.30);--shadow-lg:0 20px 55px rgba(0,0,0,.36);
+}
+html{background:var(--bg)}
+body{
+ margin:0!important;background:
+ radial-gradient(circle at 100% 0%,rgba(16,185,129,.10),transparent 30rem),
+ linear-gradient(180deg,var(--bg),var(--bg))!important;
+ color:var(--text)!important;font-family:Cairo,Inter,system-ui,sans-serif!important;
+ -webkit-font-smoothing:antialiased;
+}
+#app{
+ width:100%;max-width:560px!important;min-height:100svh!important;
+ background:transparent!important;padding-bottom:92px;
+}
+#app>.animate-fade-in{padding:18px 16px 26px!important;gap:16px!important}
+#app h1{letter-spacing:-.025em}
+#app .rounded-2xl,#app .rounded-3xl,#app .rounded-\[28px\]{
+ border-radius:22px!important;
+}
+#app .shadow-card,#app .shadow-soft,.premium-card{box-shadow:var(--shadow-md)!important}
+#app .border{border-color:var(--border)!important}
+#app [class*="bg-white"],#app [class*="bg-gray-50"],#app [class*="bg-gray-100"]{
+ background:var(--surface)!important;
+}
+#app [class*="text-gray-900"],#app [class*="text-slate-900"]{color:var(--text)!important}
+#app [class*="text-gray-500"],#app [class*="text-slate-500"]{color:var(--text-2)!important}
+
+/* Header */
+#app>.animate-fade-in>div:first-child{
+ padding:8px 2px 4px!important;
+}
+#app>.animate-fade-in>div:first-child h1{
+ font-size:20px!important;font-weight:900!important;
+}
+#app>.animate-fade-in>div:first-child .text-right{
+ background:var(--surface);border:1px solid var(--border);border-radius:16px;
+ padding:7px 10px;box-shadow:var(--shadow-sm);
+}
+
+/* Tip card */
+#app .bg-gradient-to-l.from-amber-50{
+ border:0!important;background:linear-gradient(135deg,#fff8e8,#fff2d6)!important;
+ box-shadow:var(--shadow-sm);padding:14px!important;border-radius:18px!important;
+}
+.dark #app .bg-gradient-to-l.from-amber-50{
+ background:linear-gradient(135deg,#2a2110,#241c0c)!important;
+}
+
+/* Calorie hero */
+#app .from-brand-500{
+ background:linear-gradient(135deg,#0f9f72 0%,#087f60 48%,#075f4a 100%)!important;
+ border:1px solid rgba(255,255,255,.14)!important;
+ box-shadow:0 18px 45px rgba(5,150,105,.24)!important;
+}
+#app .from-brand-500 .text-5xl{font-size:42px!important;font-weight:900!important;letter-spacing:-.04em}
+#app .from-brand-500 .w-32{width:128px!important;height:128px!important}
+
+/* Macro cards */
+#app .grid.grid-cols-3>div{
+ border:1px solid var(--border)!important;background:var(--surface)!important;
+ box-shadow:var(--shadow-sm)!important;border-radius:18px!important;padding:14px 10px!important;
+ transition:transform .18s ease,box-shadow .18s ease;
+}
+#app .grid.grid-cols-3>div:active{transform:scale(.98)}
+#app .grid.grid-cols-3 .text-xl{font-size:21px!important;font-weight:900!important}
+
+/* Section titles */
+#app h2,#app h3{font-weight:900!important;letter-spacing:-.02em}
+
+/* Quick actions / scan */
+#app button{
+ font-family:inherit!important;border-radius:16px;
+ transition:transform .16s ease,box-shadow .16s ease,filter .16s ease;
+}
+#app button:active{transform:scale(.975)}
+#app [data-action="nav"]{
+ min-height:64px!important;border:0;background:transparent;
+ color:var(--text-2);font-size:11px;
+}
+#bottomNav{
+ max-width:560px;margin:auto;left:0;right:0;
+ background:color-mix(in srgb,var(--surface) 88%,transparent)!important;
+ border:1px solid var(--border)!important;border-bottom:0!important;
+ box-shadow:0 -10px 35px rgba(15,23,42,.08)!important;
+ backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+ border-radius:22px 22px 0 0;
+}
+#bottomNav .nav-btn{color:var(--text-3)}
+#bottomNav .nav-btn.active,#bottomNav .nav-btn[data-active="true"]{
+ color:var(--primary)!important;
+}
+#bottomNav .nav-btn:nth-child(2){
+ position:relative;
+}
+#bottomNav .nav-btn:nth-child(2)::before{
+ content:"";position:absolute;width:48px;height:48px;border-radius:16px;
+ background:linear-gradient(135deg,var(--primary),var(--primary-strong));
+ box-shadow:0 8px 22px rgba(16,185,129,.28);z-index:-1;
+}
+
+/* Scanner */
+#app .scanner-hero,.scanner-shell{
+ background:linear-gradient(145deg,#071c16,#0c3328)!important;
+ color:#fff!important;border-radius:26px!important;
+ box-shadow:var(--shadow-lg)!important;
+}
+#previewBox{
+ border-radius:24px!important;overflow:hidden;
+ border:2px solid rgba(16,185,129,.30)!important;
+ background:#07110e!important;
+ box-shadow:0 16px 40px rgba(0,0,0,.18)!important;
+}
+#previewImg{width:100%!important;max-height:310px!important;object-fit:cover!important}
+#cameraInput,#galleryInput{display:none}
+
+/* Recipe cards */
+#app .recipe-card,[data-recipe-id]{
+ border:1px solid var(--border)!important;background:var(--surface)!important;
+ box-shadow:var(--shadow-sm)!important;border-radius:20px!important;
+ overflow:hidden;
+}
+
+/* Inputs */
+#app input,#app select,#app textarea{
+ border:1px solid var(--border)!important;background:var(--surface)!important;
+ color:var(--text)!important;border-radius:15px!important;
+ min-height:46px;outline:none;
+}
+#app input:focus,#app select:focus,#app textarea:focus{
+ border-color:rgba(16,185,129,.65)!important;
+ box-shadow:0 0 0 4px rgba(16,185,129,.10)!important;
+}
+
+/* Numbers */
+.num-en,.metric-number,[data-num]{
+ font-family:Inter,Cairo,system-ui,sans-serif!important;
+ font-variant-numeric:tabular-nums!important;
+ direction:ltr!important;unicode-bidi:isolate!important;
+}
+
+/* Modal */
+#modal{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#modalCard{
+ background:var(--surface)!important;border:1px solid var(--border);
+ box-shadow:var(--shadow-lg)!important;
+}
+
+/* Toast */
+#toast>div{border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow-lg)!important}
+
+/* Accessibility / touch */
+button,a,input,select{touch-action:manipulation}
+@media(min-width:700px){
+ #app{box-shadow:0 0 80px rgba(16,32,27,.08);border-left:1px solid var(--border);border-right:1px solid var(--border)}
+}
+@media(max-width:380px){
+ #app>.animate-fade-in{padding-left:12px!important;padding-right:12px!important}
+ #app .from-brand-500 .text-5xl{font-size:36px!important}
+}
+
+</style>
 </head>
 <body class="min-h-screen">
 
@@ -160,7 +333,7 @@ window.toLatinDigits=function(v){return String(v).replace(/[٠-٩]/g,c=>String(c
 'use strict';
 
 /* ============================================================
-   وجبتي الذكية - Smart Meal v5.0
+   وجبتي الذكية - Smart Meal v8.0
    3 لغات + AI محسّن + Event Delegation آمن
    ============================================================ */
 
@@ -323,14 +496,14 @@ const Subscription = {
   },
   
   incrementScan(){
-    const used = Store.get('smp_scans_used_v7', 0) + 1;
-    Store.set('smp_scans_used_v7', used);
+    const used = Store.get('smp_scans_used_v8', 0) + 1;
+    Store.set('smp_scans_used_v8', used);
     this.scansUsed = used;
     return used;
   },
   
   resetScans(){
-    Store.set('smp_scans_used_v7', 0);
+    Store.set('smp_scans_used_v8', 0);
     this.scansUsed = 0;
   }
 };
@@ -427,7 +600,7 @@ function pickTip(key){
 const KEYS = {
   PROFILE:'smp_pro_v5', ONBOARD:'smp_on_v5', RECIPES:'smp_rec_v5',
   FAV:'smp_fav_v5', LOG:(d)=>`smp_log_${d}`, WEIGHT:'smp_wt_v5',
-  THEME:'smp_theme_v7', ACHV:'smp_achv_v7', SCANHIST:'smp_scan_v7', LANG:'smp_lang_v7',
+  THEME:'smp_theme_v8', ACHV:'smp_achv_v8', SCANHIST:'smp_scan_v8', LANG:'smp_lang_v8',
   ING:'smp_ing_v5',
 };
 let selectedImage = null;
@@ -1767,7 +1940,7 @@ function renderSettings(){
   const theme = Store.get(KEYS.THEME, 'light');
   const lang = state.lang;
   const sub = Subscription.getCurrent();
-  const scansUsed = Store.get('smp_scans_used_v7', 0);
+  const scansUsed = Store.get('smp_scans_used_v8', 0);
   const scansLeft = sub.limit.scans === Infinity ? '∞' : Math.max(0, sub.limit.scans - scansUsed);
 
   $('#app').innerHTML = `<div class="animate-fade-in p-4 space-y-4">
@@ -1986,7 +2159,7 @@ document.addEventListener('click', async (e) => {
     const text = $('#ingInput').value.trim();
     if (!text && !selectedImage){ toast(t('toasts.noIngredients')); return; }
     const sub = Subscription.getCurrent();
-    const scansUsed = Store.get('smp_scans_used_v7', 0);
+    const scansUsed = Store.get('smp_scans_used_v8', 0);
     if (scansUsed >= sub.limit.scans){
       openPricingModal();
       toast(state.lang==='ar'?'⚠️ وصلت لحد المسحات في الباقة المجانية':state.lang==='fr'?'⚠️ Limite de scans atteinte':'⚠️ Scan limit reached');
@@ -2179,7 +2352,7 @@ function openAddMealModal(){
 
 function openPricingModal(){
   const sub = Subscription.getCurrent();
-  const scansLeft = sub.limit.scans === Infinity ? '∞' : Math.max(0, sub.limit.scans - (Store.get('smp_scans_used_v7', 0)));
+  const scansLeft = sub.limit.scans === Infinity ? '∞' : Math.max(0, sub.limit.scans - (Store.get('smp_scans_used_v8', 0)));
   openModal(`<div class="flex items-center justify-between mb-5">
     <h2 class="text-xl font-black text-[var(--text)]">${state.lang==='ar'?'اختر باقتك':state.lang==='fr'?'Choisissez votre plan':'Choose Your Plan'}</h2>
     <button data-action="close-modal" class="text-[var(--text-2)] p-1"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
