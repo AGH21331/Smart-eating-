@@ -102,7 +102,7 @@
   };
 })();
 </script>
-<style id="SMARTMEAL_V8_PREMIUM">
+<style id="SMARTMEAL_V9_PREMIUM">
 :root{--primary:#10b981;--primary2:#059669;--bg:#f6f8fb;--surface:#fff;--surface2:#f1f5f9;--border:#e2e8f0;--text:#0f172a;--muted:#64748b}
 .dark{--bg:#070b10;--surface:#101720;--surface2:#17202b;--border:#263241;--text:#f8fafc;--muted:#94a3b8}
 body{background:linear-gradient(180deg,#f8fafc 0%,#eef7f3 100%)!important;min-height:100vh}
@@ -114,183 +114,10 @@ button{min-height:44px}
 #scannerLoader{box-shadow:0 12px 40px rgba(15,23,42,.08)}
 #selectedImage{border-radius:18px;object-fit:cover;max-height:260px;width:100%}
 </style>
-<script id="SMARTMEAL_NUMBERS_V8">
+<script id="SMARTMEAL_NUMBERS_V7">
 window.formatNumberEN=function(value,decimals){const n=Number(value);if(!Number.isFinite(n))return '0';return n.toLocaleString('en-US',{minimumFractionDigits:decimals||0,maximumFractionDigits:decimals||0,useGrouping:true});};
 window.toLatinDigits=function(v){return String(v).replace(/[٠-٩]/g,c=>String(c.charCodeAt(0)-0x0660)).replace(/[۰-۹]/g,c=>String(c.charCodeAt(0)-0x06F0));};
 </script>
-<style id="SMARTMEAL_V8_PREMIUM_REDESIGN">
-
-/* SMART MEAL v8 — PREMIUM UI REDESIGN */
-:root{
- --primary:#10b981;--primary-strong:#059669;--bg:#f5f7f8;--surface:#ffffff;
- --surface-2:#f0f5f3;--border:#e2e8e6;--text:#10201b;--text-2:#64736e;--text-3:#94a39e;
- --shadow-sm:0 4px 16px rgba(16,32,27,.06);--shadow-md:0 12px 32px rgba(16,32,27,.09);
- --shadow-lg:0 20px 50px rgba(16,32,27,.12);
-}
-.dark{
- --bg:#07110e;--surface:#0e1916;--surface-2:#14231f;--border:#20332e;
- --text:#f4faf7;--text-2:#a7b8b2;--text-3:#71827c;
- --shadow-sm:0 4px 18px rgba(0,0,0,.22);--shadow-md:0 12px 34px rgba(0,0,0,.30);--shadow-lg:0 20px 55px rgba(0,0,0,.36);
-}
-html{background:var(--bg)}
-body{
- margin:0!important;background:
- radial-gradient(circle at 100% 0%,rgba(16,185,129,.10),transparent 30rem),
- linear-gradient(180deg,var(--bg),var(--bg))!important;
- color:var(--text)!important;font-family:Cairo,Inter,system-ui,sans-serif!important;
- -webkit-font-smoothing:antialiased;
-}
-#app{
- width:100%;max-width:560px!important;min-height:100svh!important;
- background:transparent!important;padding-bottom:92px;
-}
-#app>.animate-fade-in{padding:18px 16px 26px!important;gap:16px!important}
-#app h1{letter-spacing:-.025em}
-#app .rounded-2xl,#app .rounded-3xl,#app .rounded-\[28px\]{
- border-radius:22px!important;
-}
-#app .shadow-card,#app .shadow-soft,.premium-card{box-shadow:var(--shadow-md)!important}
-#app .border{border-color:var(--border)!important}
-#app [class*="bg-white"],#app [class*="bg-gray-50"],#app [class*="bg-gray-100"]{
- background:var(--surface)!important;
-}
-#app [class*="text-gray-900"],#app [class*="text-slate-900"]{color:var(--text)!important}
-#app [class*="text-gray-500"],#app [class*="text-slate-500"]{color:var(--text-2)!important}
-
-/* Header */
-#app>.animate-fade-in>div:first-child{
- padding:8px 2px 4px!important;
-}
-#app>.animate-fade-in>div:first-child h1{
- font-size:20px!important;font-weight:900!important;
-}
-#app>.animate-fade-in>div:first-child .text-right{
- background:var(--surface);border:1px solid var(--border);border-radius:16px;
- padding:7px 10px;box-shadow:var(--shadow-sm);
-}
-
-/* Tip card */
-#app .bg-gradient-to-l.from-amber-50{
- border:0!important;background:linear-gradient(135deg,#fff8e8,#fff2d6)!important;
- box-shadow:var(--shadow-sm);padding:14px!important;border-radius:18px!important;
-}
-.dark #app .bg-gradient-to-l.from-amber-50{
- background:linear-gradient(135deg,#2a2110,#241c0c)!important;
-}
-
-/* Calorie hero */
-#app .from-brand-500{
- background:linear-gradient(135deg,#0f9f72 0%,#087f60 48%,#075f4a 100%)!important;
- border:1px solid rgba(255,255,255,.14)!important;
- box-shadow:0 18px 45px rgba(5,150,105,.24)!important;
-}
-#app .from-brand-500 .text-5xl{font-size:42px!important;font-weight:900!important;letter-spacing:-.04em}
-#app .from-brand-500 .w-32{width:128px!important;height:128px!important}
-
-/* Macro cards */
-#app .grid.grid-cols-3>div{
- border:1px solid var(--border)!important;background:var(--surface)!important;
- box-shadow:var(--shadow-sm)!important;border-radius:18px!important;padding:14px 10px!important;
- transition:transform .18s ease,box-shadow .18s ease;
-}
-#app .grid.grid-cols-3>div:active{transform:scale(.98)}
-#app .grid.grid-cols-3 .text-xl{font-size:21px!important;font-weight:900!important}
-
-/* Section titles */
-#app h2,#app h3{font-weight:900!important;letter-spacing:-.02em}
-
-/* Quick actions / scan */
-#app button{
- font-family:inherit!important;border-radius:16px;
- transition:transform .16s ease,box-shadow .16s ease,filter .16s ease;
-}
-#app button:active{transform:scale(.975)}
-#app [data-action="nav"]{
- min-height:64px!important;border:0;background:transparent;
- color:var(--text-2);font-size:11px;
-}
-#bottomNav{
- max-width:560px;margin:auto;left:0;right:0;
- background:color-mix(in srgb,var(--surface) 88%,transparent)!important;
- border:1px solid var(--border)!important;border-bottom:0!important;
- box-shadow:0 -10px 35px rgba(15,23,42,.08)!important;
- backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
- border-radius:22px 22px 0 0;
-}
-#bottomNav .nav-btn{color:var(--text-3)}
-#bottomNav .nav-btn.active,#bottomNav .nav-btn[data-active="true"]{
- color:var(--primary)!important;
-}
-#bottomNav .nav-btn:nth-child(2){
- position:relative;
-}
-#bottomNav .nav-btn:nth-child(2)::before{
- content:"";position:absolute;width:48px;height:48px;border-radius:16px;
- background:linear-gradient(135deg,var(--primary),var(--primary-strong));
- box-shadow:0 8px 22px rgba(16,185,129,.28);z-index:-1;
-}
-
-/* Scanner */
-#app .scanner-hero,.scanner-shell{
- background:linear-gradient(145deg,#071c16,#0c3328)!important;
- color:#fff!important;border-radius:26px!important;
- box-shadow:var(--shadow-lg)!important;
-}
-#previewBox{
- border-radius:24px!important;overflow:hidden;
- border:2px solid rgba(16,185,129,.30)!important;
- background:#07110e!important;
- box-shadow:0 16px 40px rgba(0,0,0,.18)!important;
-}
-#previewImg{width:100%!important;max-height:310px!important;object-fit:cover!important}
-#cameraInput,#galleryInput{display:none}
-
-/* Recipe cards */
-#app .recipe-card,[data-recipe-id]{
- border:1px solid var(--border)!important;background:var(--surface)!important;
- box-shadow:var(--shadow-sm)!important;border-radius:20px!important;
- overflow:hidden;
-}
-
-/* Inputs */
-#app input,#app select,#app textarea{
- border:1px solid var(--border)!important;background:var(--surface)!important;
- color:var(--text)!important;border-radius:15px!important;
- min-height:46px;outline:none;
-}
-#app input:focus,#app select:focus,#app textarea:focus{
- border-color:rgba(16,185,129,.65)!important;
- box-shadow:0 0 0 4px rgba(16,185,129,.10)!important;
-}
-
-/* Numbers */
-.num-en,.metric-number,[data-num]{
- font-family:Inter,Cairo,system-ui,sans-serif!important;
- font-variant-numeric:tabular-nums!important;
- direction:ltr!important;unicode-bidi:isolate!important;
-}
-
-/* Modal */
-#modal{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-#modalCard{
- background:var(--surface)!important;border:1px solid var(--border);
- box-shadow:var(--shadow-lg)!important;
-}
-
-/* Toast */
-#toast>div{border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow-lg)!important}
-
-/* Accessibility / touch */
-button,a,input,select{touch-action:manipulation}
-@media(min-width:700px){
- #app{box-shadow:0 0 80px rgba(16,32,27,.08);border-left:1px solid var(--border);border-right:1px solid var(--border)}
-}
-@media(max-width:380px){
- #app>.animate-fade-in{padding-left:12px!important;padding-right:12px!important}
- #app .from-brand-500 .text-5xl{font-size:36px!important}
-}
-
-</style>
 </head>
 <body class="min-h-screen">
 
@@ -333,7 +160,7 @@ button,a,input,select{touch-action:manipulation}
 'use strict';
 
 /* ============================================================
-   وجبتي الذكية - Smart Meal v8.0
+   وجبتي الذكية - Smart Meal v5.0
    3 لغات + AI محسّن + Event Delegation آمن
    ============================================================ */
 
@@ -496,14 +323,14 @@ const Subscription = {
   },
   
   incrementScan(){
-    const used = Store.get('smp_scans_used_v8', 0) + 1;
-    Store.set('smp_scans_used_v8', used);
+    const used = Store.get('smp_scans_used_v7', 0) + 1;
+    Store.set('smp_scans_used_v7', used);
     this.scansUsed = used;
     return used;
   },
   
   resetScans(){
-    Store.set('smp_scans_used_v8', 0);
+    Store.set('smp_scans_used_v7', 0);
     this.scansUsed = 0;
   }
 };
@@ -600,7 +427,7 @@ function pickTip(key){
 const KEYS = {
   PROFILE:'smp_pro_v5', ONBOARD:'smp_on_v5', RECIPES:'smp_rec_v5',
   FAV:'smp_fav_v5', LOG:(d)=>`smp_log_${d}`, WEIGHT:'smp_wt_v5',
-  THEME:'smp_theme_v8', ACHV:'smp_achv_v8', SCANHIST:'smp_scan_v8', LANG:'smp_lang_v8',
+  THEME:'smp_theme_v7', ACHV:'smp_achv_v7', SCANHIST:'smp_scan_v7', LANG:'smp_lang_v7',
   ING:'smp_ing_v5',
 };
 let selectedImage = null;
@@ -1940,7 +1767,7 @@ function renderSettings(){
   const theme = Store.get(KEYS.THEME, 'light');
   const lang = state.lang;
   const sub = Subscription.getCurrent();
-  const scansUsed = Store.get('smp_scans_used_v8', 0);
+  const scansUsed = Store.get('smp_scans_used_v7', 0);
   const scansLeft = sub.limit.scans === Infinity ? '∞' : Math.max(0, sub.limit.scans - scansUsed);
 
   $('#app').innerHTML = `<div class="animate-fade-in p-4 space-y-4">
@@ -2134,8 +1961,8 @@ document.addEventListener('click', async (e) => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)){ toast(t('scan.noVoice')); return; }
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     const rec = new SR();
-    rec.lang = state.lang === 'ar' ? 'ar-SA' : state.lang === 'fr' ? 'fr-FR' : 'en-US';
-    rec.continuous = false; rec.interimResults = false;
+    rec.lang = state.lang === 'ar' ? 'ar-DZ' : state.lang === 'fr' ? 'fr-FR' : 'en-US';
+    rec.continuous = false; rec.interimResults = true; rec.maxAlternatives = 3;
     rec.onresult = (ev) => {
       const text = ev.results[0][0].transcript;
       const ing = $('#ingInput');
@@ -2143,8 +1970,10 @@ document.addEventListener('click', async (e) => {
       saveIngredients(ing.value);
       toast(t('toasts.voiceDone'));
     };
-    rec.onerror = () => toast(t('toasts.voiceError'));
-    try{ rec.start(); toast(t('scan.speak')); }catch(e){ toast(t('toasts.tryAgain')); }
+    rec.onstart = () => { const b=document.querySelector('[data-action="voice-input"]'); if(b){b.disabled=true;b.classList.add('opacity-60');} toast(t('scan.speak')); };
+    rec.onend = () => { const b=document.querySelector('[data-action="voice-input"]'); if(b){b.disabled=false;b.classList.remove('opacity-60');} };
+    rec.onerror = (ev) => { console.warn('Speech recognition error', ev.error); toast(ev.error==='not-allowed' ? 'اسمح للمتصفح باستخدام الميكروفون' : t('toasts.voiceError')); };
+    try{ rec.start(); }catch(e){ toast(t('toasts.tryAgain')); }
     return;
   }
   if (action === 'quick-add-ing'){
@@ -2159,7 +1988,7 @@ document.addEventListener('click', async (e) => {
     const text = $('#ingInput').value.trim();
     if (!text && !selectedImage){ toast(t('toasts.noIngredients')); return; }
     const sub = Subscription.getCurrent();
-    const scansUsed = Store.get('smp_scans_used_v8', 0);
+    const scansUsed = Store.get('smp_scans_used_v7', 0);
     if (scansUsed >= sub.limit.scans){
       openPricingModal();
       toast(state.lang==='ar'?'⚠️ وصلت لحد المسحات في الباقة المجانية':state.lang==='fr'?'⚠️ Limite de scans atteinte':'⚠️ Scan limit reached');
@@ -2352,7 +2181,7 @@ function openAddMealModal(){
 
 function openPricingModal(){
   const sub = Subscription.getCurrent();
-  const scansLeft = sub.limit.scans === Infinity ? '∞' : Math.max(0, sub.limit.scans - (Store.get('smp_scans_used_v8', 0)));
+  const scansLeft = sub.limit.scans === Infinity ? '∞' : Math.max(0, sub.limit.scans - (Store.get('smp_scans_used_v7', 0)));
   openModal(`<div class="flex items-center justify-between mb-5">
     <h2 class="text-xl font-black text-[var(--text)]">${state.lang==='ar'?'اختر باقتك':state.lang==='fr'?'Choisissez votre plan':'Choose Your Plan'}</h2>
     <button data-action="close-modal" class="text-[var(--text-2)] p-1"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -2506,3 +2335,78 @@ if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoa
 </script>
 </body>
 </html>
+<style id="SMARTMEAL_V10_ELITE_UI">
+/* Smart Meal v10 — premium mobile product UI */
+:root{
+  --bg:#f5f7f8;--surface:#ffffff;--surface2:#f0f4f3;--border:#dfe8e4;
+  --text:#0b1713;--muted:#65756e;--primary:#00a878;--primary2:#007f5f;
+  --shadow:0 14px 45px rgba(15,35,28,.07);--shadow2:0 8px 24px rgba(15,35,28,.08)
+}
+.dark{--bg:#07100d;--surface:#0d1714;--surface2:#14211d;--border:#24362f;--text:#f2faf6;--muted:#94aaa1;--shadow:0 18px 50px rgba(0,0,0,.28);--shadow2:0 10px 28px rgba(0,0,0,.22)}
+html,body{background:var(--bg)!important;color:var(--text)!important}
+body{font-family:'Cairo','Inter',system-ui,sans-serif;letter-spacing:-.01em}
+#app{max-width:560px!important;background:transparent!important;padding-bottom:calc(92px + env(safe-area-inset-bottom))!important}
+#app>div{padding:18px 16px 26px!important;gap:18px!important}
+/* premium page rhythm */
+#app h1{letter-spacing:-.035em;font-size:clamp(1.35rem,5vw,1.8rem)!important}
+#app h2{letter-spacing:-.025em}
+#app .shadow-card{box-shadow:var(--shadow2)!important}
+#app [class*="border-[var(--border)]"]{border-color:var(--border)!important}
+#app [class*="rounded-2xl"]{border-radius:22px!important}
+#app [class*="rounded-3xl"]{border-radius:28px!important}
+/* header */
+#app>div>div:first-child{padding-top:4px!important}
+#app>div>div:first-child h1{font-weight:900!important}
+#app>div>div:first-child p{color:var(--muted)!important}
+/* calorie hero */
+#app .pro-glow{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.16)!important;box-shadow:0 22px 55px -22px rgba(0,168,120,.5)!important;background:linear-gradient(135deg,#008f6a 0%,#00b486 48%,#006e55 100%)!important}
+#app .pro-glow:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.09);top:-80px;left:-70px;filter:blur(1px)}
+#app .pro-glow .metric-number{font-size:2.65rem!important;line-height:.95!important;letter-spacing:-.06em!important}
+#app .ring-p{box-shadow:0 0 0 1px rgba(255,255,255,.12),inset 0 0 25px rgba(0,0,0,.06)}
+/* macro cards */
+#app .grid.grid-cols-3>div{min-height:96px;display:flex;flex-direction:column;justify-content:center;border:1px solid var(--border);background:linear-gradient(180deg,var(--surface),var(--surface2))!important;box-shadow:none!important}
+#app .grid.grid-cols-3>div .text-base{font-size:1.05rem!important}
+/* quick actions */
+#app button[data-action="go-tab"][data-tab="scan"],#app button[data-action="go-tab"][data-tab="recipes"],#app button[data-action="open-add-meal"]{min-height:92px;border-radius:22px!important;box-shadow:var(--shadow2)!important;position:relative;overflow:hidden}
+#app button[data-action="go-tab"][data-tab="scan"]{background:linear-gradient(135deg,#087f62,#00b889)!important}
+#app button[data-action="go-tab"][data-tab="recipes"]{background:linear-gradient(135deg,#5d4de5,#8b78ff)!important}
+#app button[data-action="open-add-meal"]{background:linear-gradient(135deg,#d97706,#f59e0b)!important}
+#app button[data-action="go-tab"]>div,#app button[data-action="open-add-meal"]>div{font-size:1.7rem!important}
+/* charts */
+#app .chart-bar{border-radius:10px 10px 5px 5px!important}
+/* scanner hero */
+#app .bg-gradient-to-br.from-blue-500.to-purple-600{background:linear-gradient(135deg,#0f766e,#2563eb 58%,#6d28d9)!important;box-shadow:0 18px 45px -24px rgba(37,99,235,.65)!important}
+#app input[type=file]+*{border-radius:24px}
+#app [data-action="trigger-camera"]{background:linear-gradient(135deg,#00a878,#007f5f)!important;box-shadow:0 10px 25px -15px rgba(0,168,120,.8)}
+#app [data-action="trigger-gallery"]{background:var(--surface)!important;border:1px solid var(--primary)!important;color:var(--primary2)!important}
+#app [data-action="generate"]{min-height:54px!important;border-radius:18px!important;background:linear-gradient(135deg,#111827,#24303d)!important;box-shadow:0 12px 28px -18px rgba(15,23,42,.8)}
+.dark #app [data-action="generate"]{background:linear-gradient(135deg,#f8fafc,#dce7e2)!important;color:#07100d!important}
+/* bottom nav = floating dock */
+#bottomNav{background:transparent!important;border:0!important;bottom:10px!important;padding:0 10px!important;pointer-events:none}
+#bottomNav>div{max-width:540px!important;margin:auto;background:rgba(255,255,255,.88);border:1px solid rgba(223,232,228,.95);box-shadow:0 18px 45px rgba(15,35,28,.14);border-radius:25px;padding:5px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);pointer-events:auto}
+.dark #bottomNav>div{background:rgba(13,23,20,.9);border-color:#263c33;box-shadow:0 18px 45px rgba(0,0,0,.35)}
+#bottomNav .nav-btn{border-radius:19px!important;min-height:54px!important;gap:1px}
+#bottomNav .nav-btn:hover{background:var(--surface2)}
+#bottomNav .nav-btn[data-tab="scan"]{color:#fff!important;background:linear-gradient(135deg,#00a878,#007f5f);transform:translateY(-9px);box-shadow:0 12px 24px -12px rgba(0,168,120,.75);border:4px solid var(--bg)}
+#bottomNav .nav-btn[data-tab="scan"] span{color:#fff!important}
+#bottomNav svg{width:20px!important;height:20px!important}
+/* modal */
+#modal{background:rgba(3,12,9,.58)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#modalCard{box-shadow:0 25px 80px rgba(0,0,0,.28)!important;border:1px solid var(--border)}
+/* inputs */
+#app input,#app textarea,#app select{border-radius:17px!important;border-color:var(--border)!important;background:var(--surface2)!important;min-height:48px}
+#app textarea{min-height:100px}
+#app input:focus,#app textarea:focus,#app select:focus{box-shadow:0 0 0 3px rgba(0,168,120,.12)!important;border-color:var(--primary)!important}
+/* cards and empty states */
+#app .premium-card{background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(248,251,250,.96))!important;box-shadow:var(--shadow)!important}
+.dark #app .premium-card{background:linear-gradient(180deg,rgba(13,23,20,.98),rgba(15,27,23,.98))!important}
+/* subtle separators */
+.section-title:after{content:"";display:block;width:28px;height:3px;border-radius:3px;background:var(--primary);margin-top:7px}
+/* accessibility */
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid rgba(0,168,120,.3);outline-offset:2px}
+@media(min-width:700px){#app{max-width:620px!important}#app>div{padding:24px 20px 32px!important}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+<script id="SMARTMEAL_V10_META">
+document.title='وجبتي الذكية | Smart Meal — AI Nutrition';
+</script>
