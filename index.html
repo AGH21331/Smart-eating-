@@ -118,6 +118,78 @@ button{min-height:44px}
 window.formatNumberEN=function(value,decimals){const n=Number(value);if(!Number.isFinite(n))return '0';return n.toLocaleString('en-US',{minimumFractionDigits:decimals||0,maximumFractionDigits:decimals||0,useGrouping:true});};
 window.toLatinDigits=function(v){return String(v).replace(/[٠-٩]/g,c=>String(c.charCodeAt(0)-0x0660)).replace(/[۰-۹]/g,c=>String(c.charCodeAt(0)-0x06F0));};
 </script>
+
+<style id="SMARTMEAL_V11_ELITE">
+:root{--bg:#f5f7f6;--surface:#ffffff;--surface2:#eef3f1;--border:#dce7e2;--text:#10221b;--muted:#6b7d75;--primary:#087f5b;--primary2:#0aa875;--accent:#d9f99d;}
+.dark{--bg:#07100d;--surface:#0d1915;--surface2:#13241e;--border:#20372e;--text:#f2fbf6;--muted:#91aaa0;--primary:#34d399;--primary2:#10b981;--accent:#365314}
+html,body{background:var(--bg)!important;color:var(--text)!important}
+body{background:radial-gradient(900px 380px at 50% -120px,rgba(16,185,129,.18),transparent 65%),var(--bg)!important}
+#app{max-width:560px!important;background:transparent!important}
+/* premium shell */
+#app>header{position:sticky!important;top:0!important;z-index:35!important;background:color-mix(in srgb,var(--bg) 86%,transparent)!important;backdrop-filter:blur(18px)!important;border-bottom:1px solid color-mix(in srgb,var(--border) 65%,transparent)!important}
+.premium-card,[class*="rounded-2xl"]{border-radius:24px!important;border:1px solid var(--border)!important;background:color-mix(in srgb,var(--surface) 96%,transparent)!important;box-shadow:0 14px 38px rgba(15,23,42,.06)!important}
+.dark .premium-card,.dark [class*="rounded-2xl"]{box-shadow:0 16px 42px rgba(0,0,0,.20)!important}
+/* hero / calorie cards */
+.bg-brand-500,.bg-brand-600,.bg-emerald-500,.bg-emerald-600{background:linear-gradient(135deg,var(--primary),var(--primary2))!important}
+.ring-p{box-shadow:0 0 0 10px color-mix(in srgb,var(--primary) 10%,transparent),0 18px 45px rgba(8,127,91,.20)}
+.metric-number{font-size:2.15rem!important;font-weight:900!important;letter-spacing:-.055em!important}
+.num-en,[data-num],.metric-number{font-family:Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums!important;direction:ltr!important;unicode-bidi:isolate!important}
+/* action cards */
+[data-action="nav"],button{touch-action:manipulation}
+button{border-radius:16px!important;font-weight:800!important}
+[data-action="trigger-camera"], [data-action="trigger-gallery"], [data-action="generate-recipes"]{min-height:54px!important;box-shadow:0 8px 22px rgba(8,127,91,.10)!important}
+[data-action="trigger-camera"]{background:linear-gradient(135deg,#087f5b,#10b981)!important;color:white!important}
+[data-action="trigger-gallery"]{background:var(--surface)!important;color:var(--text)!important;border:1px solid var(--border)!important}
+/* floating nav */
+#bottomNav{margin:0 10px 10px!important;border:1px solid var(--border)!important;border-radius:22px!important;box-shadow:0 18px 45px rgba(15,23,42,.12)!important;overflow:hidden!important;bottom:env(safe-area-inset-bottom)!important;background:color-mix(in srgb,var(--surface) 88%,transparent)!important;backdrop-filter:blur(20px)!important}
+#bottomNav .nav-btn{min-height:58px!important}
+#bottomNav .nav-btn span{font-size:10px!important}
+/* inputs */
+input,textarea,select{background:var(--surface)!important;color:var(--text)!important;border:1px solid var(--border)!important;border-radius:16px!important;min-height:50px}
+input:focus,textarea:focus,select:focus{outline:none!important;border-color:var(--primary)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--primary) 13%,transparent)!important}
+/* scanner */
+#previewBox{border:2px dashed color-mix(in srgb,var(--primary) 40%,var(--border))!important;background:linear-gradient(145deg,color-mix(in srgb,var(--primary) 7%,var(--surface)),var(--surface))!important}
+#previewImg,#selectedImage{border-radius:20px!important;max-height:300px!important;object-fit:cover!important}
+/* recipe cards */
+.recipe-card,.meal-card{transition:transform .2s ease,box-shadow .2s ease!important}
+.recipe-card:active,.meal-card:active{transform:scale(.985)!important}
+/* charts */
+.chart-bar{background:linear-gradient(180deg,var(--primary2),var(--primary))!important;border-radius:10px 10px 5px 5px!important}
+/* badges */
+[class*="rounded-full"]{letter-spacing:.01em}
+/* hide ugly default scrollbars */
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--primary) 35%,var(--border));border-radius:99px}
+/* subtle entrance */
+.animate-fade-in{animation:smV11In .34s cubic-bezier(.2,.8,.2,1)!important}@keyframes smV11In{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:none}}
+/* accessibility */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+<script id="SMARTMEAL_V11_VOICE">
+(()=>{
+  let currentRec=null;
+  window.SmartMealVoice={
+    supported:()=>!!(window.SpeechRecognition||window.webkitSpeechRecognition),
+    speak(text,lang='ar-DZ'){
+      if(!('speechSynthesis' in window)) return false;
+      speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(String(text));
+      u.lang=lang; u.rate=.95; u.pitch=1; u.volume=1;
+      speechSynthesis.speak(u); return true;
+    },
+    listen(onText,onDone,onError,lang='ar-DZ'){
+      const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+      if(!SR){onError?.('unsupported');return false}
+      try{
+        if(currentRec) currentRec.abort();
+        const r=new SR(); currentRec=r; r.lang=lang; r.continuous=false; r.interimResults=false; r.maxAlternatives=1;
+        r.onresult=e=>{const text=e?.results?.[0]?.[0]?.transcript?.trim();if(text)onText?.(text)};
+        r.onerror=e=>onError?.(e.error||'error');
+        r.onend=()=>{currentRec=null;onDone?.()}; r.start(); return true;
+      }catch(e){currentRec=null;onError?.('start-failed');return false}
+    }
+  };
+})();
+</script>
+
 </head>
 <body class="min-h-screen">
 
@@ -134,7 +206,7 @@ window.toLatinDigits=function(v){return String(v).replace(/[٠-٩]/g,c=>String(c
 <nav id="bottomNav" class="fixed bottom-0 inset-x-0 z-40 bg-[var(--surface)]/95 backdrop-blur-lg border-t border-[var(--border)] hidden safe-bottom">
   <div class="max-w-md mx-auto grid grid-cols-5 text-[10px]">
     <button data-action="nav" data-tab="home" class="nav-btn flex flex-col items-center justify-center py-2.5 transition">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v11h14V10"/></svg>
       <span class="mt-0.5 font-bold" data-i18n="nav.home">الرئيسية</span>
     </button>
     <button data-action="nav" data-tab="scan" class="nav-btn flex flex-col items-center justify-center py-2.5 transition">
@@ -1958,22 +2030,17 @@ document.addEventListener('click', async (e) => {
   if (action === 'trigger-gallery'){ e.preventDefault(); $('#galleryInput').click(); return; }
   if (action === 'remove-image'){ selectedImage=null; $('#previewImg').src = ''; $('#previewBox').classList.add('hidden'); return; }
   if (action === 'voice-input'){
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)){ toast(t('scan.noVoice')); return; }
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const rec = new SR();
-    rec.lang = state.lang === 'ar' ? 'ar-DZ' : state.lang === 'fr' ? 'fr-FR' : 'en-US';
-    rec.continuous = false; rec.interimResults = true; rec.maxAlternatives = 3;
-    rec.onresult = (ev) => {
-      const text = ev.results[0][0].transcript;
-      const ing = $('#ingInput');
-      ing.value = ing.value ? ing.value + ', ' + text : text;
-      saveIngredients(ing.value);
-      toast(t('toasts.voiceDone'));
-    };
-    rec.onstart = () => { const b=document.querySelector('[data-action="voice-input"]'); if(b){b.disabled=true;b.classList.add('opacity-60');} toast(t('scan.speak')); };
-    rec.onend = () => { const b=document.querySelector('[data-action="voice-input"]'); if(b){b.disabled=false;b.classList.remove('opacity-60');} };
-    rec.onerror = (ev) => { console.warn('Speech recognition error', ev.error); toast(ev.error==='not-allowed' ? 'اسمح للمتصفح باستخدام الميكروفون' : t('toasts.voiceError')); };
-    try{ rec.start(); }catch(e){ toast(t('toasts.tryAgain')); }
+    const b=document.querySelector('[data-action="voice-input"]');
+    const lang=state.lang==='ar'?'ar-DZ':state.lang==='fr'?'fr-FR':'en-US';
+    if(!window.SmartMealVoice?.supported()){ toast('الإدخال الصوتي غير مدعوم هنا. جرّب Chrome على Android.'); return; }
+    if(b){b.disabled=true;b.classList.add('opacity-60');}
+    toast(t('scan.speak'));
+    window.SmartMealVoice.listen(text=>{
+      const ing=$('#ingInput'); ing.value=ing.value?ing.value+', '+text:text; saveIngredients(ing.value);
+    },()=>{if(b){b.disabled=false;b.classList.remove('opacity-60');} toast(t('toasts.voiceDone'));},err=>{
+      if(b){b.disabled=false;b.classList.remove('opacity-60');}
+      toast(err==='not-allowed'?'اسمح للمتصفح باستخدام الميكروفون':err==='unsupported'?'الإدخال الصوتي غير مدعوم في هذا المتصفح':t('toasts.voiceError'));
+    },lang);
     return;
   }
   if (action === 'quick-add-ing'){
@@ -2335,8 +2402,8 @@ if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoa
 </script>
 </body>
 </html>
-<style id="SMARTMEAL_V10_ELITE_UI">
-/* Smart Meal v10 — premium mobile product UI */
+<style id="SMARTMEAL_V11_ELITE_UI">
+/* Smart Meal v11 — premium mobile product UI */
 :root{
   --bg:#f5f7f8;--surface:#ffffff;--surface2:#f0f4f3;--border:#dfe8e4;
   --text:#0b1713;--muted:#65756e;--primary:#00a878;--primary2:#007f5f;
@@ -2407,6 +2474,6 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 @media(min-width:700px){#app{max-width:620px!important}#app>div{padding:24px 20px 32px!important}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
-<script id="SMARTMEAL_V10_META">
+<script id="SMARTMEAL_V11_META">
 document.title='وجبتي الذكية | Smart Meal — AI Nutrition';
 </script>
