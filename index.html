@@ -67,7 +67,14 @@
   .tab-idle{color:var(--text-3)}
   .chart-bar{transition:height .5s cubic-bezier(.4,0,.2,1)}
   input,select,textarea{font-family:inherit;font-size:16px}
-  .num-en{font-feature-settings:"tnum";font-variant-numeric:tabular-nums}
+  .num-en{font-family:Inter,system-ui,sans-serif!important;font-feature-settings:"tnum";font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+</style>
+<style id="SMARTMEAL_PRO_UI">
+  body{background:radial-gradient(circle at 10% 0%,rgba(16,185,129,.08),transparent 32%),radial-gradient(circle at 100% 0%,rgba(59,130,246,.06),transparent 28%),var(--bg);}
+  .premium-card{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-color:color-mix(in srgb,var(--border) 82%,var(--primary) 18%);}
+  .metric-number{letter-spacing:-.035em;font-variant-numeric:tabular-nums;}
+  .pro-glow{box-shadow:0 14px 40px -18px rgba(16,185,129,.55);}
+  button{touch-action:manipulation;}
 </style>
 
 <script id="SMARTMEAL_V2_HARDENING">
@@ -80,7 +87,7 @@
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); window.__smpInstallPrompt=e; });
   window.SmartMealAI = {
     async generate(payload) {
-      const r = await fetch('/api/ai', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:JSON.stringify(payload)})});
+      const r = await fetch('/api/ai', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
       if (!r.ok) throw new Error((await r.json().catch(()=>({}))).error || 'AI unavailable');
       return r.json();
     }
@@ -94,6 +101,22 @@
     }
   };
 })();
+</script>
+<style id="SMARTMEAL_V7_PREMIUM">
+:root{--primary:#10b981;--primary2:#059669;--bg:#f6f8fb;--surface:#fff;--surface2:#f1f5f9;--border:#e2e8f0;--text:#0f172a;--muted:#64748b}
+.dark{--bg:#070b10;--surface:#101720;--surface2:#17202b;--border:#263241;--text:#f8fafc;--muted:#94a3b8}
+body{background:linear-gradient(180deg,#f8fafc 0%,#eef7f3 100%)!important;min-height:100vh}
+.dark body{background:linear-gradient(180deg,#070b10 0%,#0b1514 100%)!important}
+#app{max-width:520px;margin:auto;min-height:100vh}
+.premium-card,[class*="rounded-2xl"]{border-radius:20px!important}
+button{min-height:44px}
+.num-en,.metric-number,[data-num]{font-family:Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums!important;direction:ltr!important;unicode-bidi:isolate!important}
+#scannerLoader{box-shadow:0 12px 40px rgba(15,23,42,.08)}
+#selectedImage{border-radius:18px;object-fit:cover;max-height:260px;width:100%}
+</style>
+<script id="SMARTMEAL_NUMBERS_V7">
+window.formatNumberEN=function(value,decimals){const n=Number(value);if(!Number.isFinite(n))return '0';return n.toLocaleString('en-US',{minimumFractionDigits:decimals||0,maximumFractionDigits:decimals||0,useGrouping:true});};
+window.toLatinDigits=function(v){return String(v).replace(/[٠-٩]/g,c=>String(c.charCodeAt(0)-0x0660)).replace(/[۰-۹]/g,c=>String(c.charCodeAt(0)-0x06F0));};
 </script>
 </head>
 <body class="min-h-screen">
@@ -137,7 +160,7 @@
 'use strict';
 
 /* ============================================================
-   وجبتي الذكية - النسخة النهائية v4.0
+   وجبتي الذكية - Smart Meal v5.0
    3 لغات + AI محسّن + Event Delegation آمن
    ============================================================ */
 
@@ -145,7 +168,16 @@
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
 const escapeHtml = (s) => String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-const fmt = n => Number(n||0).toLocaleString('ar-EG');
+const fmt = n => {
+  const v = Number(n);
+  if (!Number.isFinite(v)) return '0';
+  return new Intl.NumberFormat('en-US', {numberingSystem:'latn', useGrouping:true, maximumFractionDigits:0}).format(v);
+};
+const fmt1 = n => {
+  const v = Number(n);
+  if (!Number.isFinite(v)) return '0.0';
+  return new Intl.NumberFormat('en-US', {numberingSystem:'latn', useGrouping:true, minimumFractionDigits:1, maximumFractionDigits:1}).format(v);
+};
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const todayKey = () => new Date().toISOString().slice(0,10);
 
@@ -262,9 +294,9 @@ const Subscription = {
   expiryDate: null,
   
   init(){
-    this.current = Store.get('smp_sub_v4', 'free');
-    this.startDate = Store.get('smp_sub_start_v4', null);
-    this.expiryDate = Store.get('smp_sub_expiry_v4', null);
+    this.current = Store.get('smp_sub_v5', 'free');
+    this.startDate = Store.get('smp_sub_start_v5', null);
+    this.expiryDate = Store.get('smp_sub_expiry_v5', null);
   },
   
   getCurrent(){
@@ -284,21 +316,21 @@ const Subscription = {
     this.current = planId;
     this.startDate = new Date().toISOString();
     this.expiryDate = planId === 'free' ? null : new Date(Date.now() + 30*24*60*60*1000).toISOString();
-    Store.set('smp_sub_v4', this.current);
-    Store.set('smp_sub_start_v4', this.startDate);
-    Store.set('smp_sub_expiry_v4', this.expiryDate);
+    Store.set('smp_sub_v5', this.current);
+    Store.set('smp_sub_start_v5', this.startDate);
+    Store.set('smp_sub_expiry_v5', this.expiryDate);
     return true;
   },
   
   incrementScan(){
-    const used = Store.get('smp_scans_used_v4', 0) + 1;
-    Store.set('smp_scans_used_v4', used);
+    const used = Store.get('smp_scans_used_v7', 0) + 1;
+    Store.set('smp_scans_used_v7', used);
     this.scansUsed = used;
     return used;
   },
   
   resetScans(){
-    Store.set('smp_scans_used_v4', 0);
+    Store.set('smp_scans_used_v7', 0);
     this.scansUsed = 0;
   }
 };
@@ -341,7 +373,7 @@ const I18N = {
     scan: { title:'Fridge Scanner 🤖', subtitle:'Discover recipes from photo or text', aiTitle:'AI Built-in', aiDesc:'Snap a photo of your ingredients or type them', camera:'📷 Camera', gallery:'🖼️ Gallery', manualLabel:'Or type ingredients manually', voice:'Voice', placeholder:'E.g. chicken, rice, broccoli, lemon...', generate:'✨ Suggest 3 recipes', loader:'AI is analyzing the image…', steps:['Detecting ingredients…','Analyzing nutrition…','Matching calories…','Creating recipes…'], historyTitle:'Recent scans', noVoice:'Browser doesn\'t support voice input', speak:'Speak now...', removeImage:'Remove image' },
     recipes: { title:'My Recipes', remainingPrefix:'Remaining', recipesCount:'recipes', favs:'Favorites', searchPlaceholder:'Search recipe or ingredient...', noResults:'No matching recipes 😕', refresh:'🔄 New suggestions from my ingredients', emptyFav:'No favorite recipes yet', explore:'Explore recipes', favsTitle:'My Favorite Recipes ❤️', all:'All' },
     weight: { title:'Weight Tracker ⚖️', current:'Current weight', change:'Change', changeSuffix:'kg', goalSuffix:'Goal', chart:'Timeline', noData:'Log your weight to start the chart', addNew:'Add new weight', date:'Date', kg:'kg', addBtn:'+', history:'History', export:'📥 Export CSV' },
-    settings: { title:'Settings', user:'User', summary:'Your needs summary', cal:'Calories', p:'Protein', c:'Carbs', f:'Fat', edit:'Edit profile', name:'Name', age:'Age', height:'Height', weight:'Weight', activity:'Activity level', goal:'Goal', save:'Save changes', appearance:'Appearance', light:'☀️ Light', dark:'🌙 Dark', language:'Language', data:'Data', exportAll:'📥 Export all data (JSON)', resetToday:'Reset today\'s log', resetAll:'🗑️ Erase all data', footer1:'🍃 Smart Meal — Made with ❤️', footer2:'Version 4.0' },
+    settings: { title:'Settings', user:'User', summary:'Your needs summary', cal:'Calories', p:'Protein', c:'Carbs', f:'Fat', edit:'Edit profile', name:'Name', age:'Age', height:'Height', weight:'Weight', activity:'Activity level', goal:'Goal', save:'Save changes', appearance:'Appearance', light:'☀️ Light', dark:'🌙 Dark', language:'Language', data:'Data', exportAll:'📥 Export all data (JSON)', resetToday:'Reset today\'s log', resetAll:'🗑️ Erase all data', footer1:'🍃 Smart Meal — Made with ❤️', footer2:'Version 5.0' },
     common: { cancel:'Cancel', add:'Add' },
     recipe: { time:'Time', diff:'Difficulty', rating:'Rating', ingredients:'Ingredients', steps:'Steps', register:'➕ Log', share:'📤 Share' },
     customMeal: { title:'Add meal manually', name:'Meal name', emoji:'Emoji', cal:'Calories', p:'Protein', c:'Carbs', f:'Fat' },
@@ -364,7 +396,7 @@ const I18N = {
     scan: { title:'Scanner de frigo 🤖', subtitle:'Découvrez des recettes via photo ou texte', aiTitle:'IA intégrée', aiDesc:'Photographiez vos ingrédients ou tapez-les', camera:'📷 Caméra', gallery:'🖼️ Galerie', manualLabel:'Ou tapez les ingrédients', voice:'Voix', placeholder:'Ex. poulet, riz, brocoli, citron...', generate:'✨ Suggérer 3 recettes', loader:'L\'IA analyse l\'image…', steps:['Détection des ingrédients…','Analyse nutritionnelle…','Correspondance des calories…','Création des recettes…'], historyTitle:'Scans récents', noVoice:'Le navigateur ne supporte pas la voix', speak:'Parlez maintenant...', removeImage:'Supprimer l\'image' },
     recipes: { title:'Mes Recettes', remainingPrefix:'Restant', recipesCount:'recettes', favs:'Favoris', searchPlaceholder:'Rechercher une recette ou un ingrédient...', noResults:'Aucune recette correspondante 😕', refresh:'🔄 Nouvelles suggestions de mes ingrédients', emptyFav:'Aucune recette favorite', explore:'Explorer les recettes', favsTitle:'Mes Recettes Favorites ❤️', all:'Tous' },
     weight: { title:'Suivi du poids ⚖️', current:'Poids actuel', change:'Changement', changeSuffix:'kg', goalSuffix:'Objectif', chart:'Chronologie', noData:'Enregistrez votre poids pour commencer', addNew:'Ajouter un poids', date:'Date', kg:'kg', addBtn:'+', history:'Historique', export:'📥 Exporter CSV' },
-    settings: { title:'Paramètres', user:'Utilisateur', summary:'Résumé de vos besoins', cal:'Calories', p:'Protéines', c:'Glucides', f:'Lipides', edit:'Modifier le profil', name:'Nom', age:'Âge', height:'Taille', weight:'Poids', activity:'Niveau d\'activité', goal:'Objectif', save:'Enregistrer', appearance:'Apparence', light:'☀️ Clair', dark:'🌙 Sombre', language:'Langue', data:'Données', exportAll:'📥 Exporter tout (JSON)', resetToday:'Réinitialiser le journal', resetAll:'🗑️ Effacer toutes les données', footer1:'🍃 Smart Meal — Fait avec ❤️', footer2:'Version 4.0' },
+    settings: { title:'Paramètres', user:'Utilisateur', summary:'Résumé de vos besoins', cal:'Calories', p:'Protéines', c:'Glucides', f:'Lipides', edit:'Modifier le profil', name:'Nom', age:'Âge', height:'Taille', weight:'Poids', activity:'Niveau d\'activité', goal:'Objectif', save:'Enregistrer', appearance:'Apparence', light:'☀️ Clair', dark:'🌙 Sombre', language:'Langue', data:'Données', exportAll:'📥 Exporter tout (JSON)', resetToday:'Réinitialiser le journal', resetAll:'🗑️ Effacer toutes les données', footer1:'🍃 Smart Meal — Fait avec ❤️', footer2:'Version 5.0' },
     common: { cancel:'Annuler', add:'Ajouter' },
     recipe: { time:'Temps', diff:'Difficulté', rating:'Note', ingredients:'Ingrédients', steps:'Étapes', register:'➕ Enregistrer', share:'📤 Partager' },
     customMeal: { title:'Ajouter un repas manuellement', name:'Nom du repas', emoji:'Emoji', cal:'Calories', p:'Protéines', c:'Glucides', f:'Lipides' },
@@ -393,11 +425,14 @@ function pickTip(key){
 
 /* ---------- التخزين ---------- */
 const KEYS = {
-  PROFILE:'smp_pro_v4', ONBOARD:'smp_on_v4', RECIPES:'smp_rec_v4',
-  FAV:'smp_fav_v4', LOG:(d)=>`smp_log_${d}`, WEIGHT:'smp_wt_v4',
-  THEME:'smp_theme_v4', ACHV:'smp_achv_v4', SCANHIST:'smp_scan_v4', LANG:'smp_lang_v4',
-  ING:'smp_ing_v4',
+  PROFILE:'smp_pro_v5', ONBOARD:'smp_on_v5', RECIPES:'smp_rec_v5',
+  FAV:'smp_fav_v5', LOG:(d)=>`smp_log_${d}`, WEIGHT:'smp_wt_v5',
+  THEME:'smp_theme_v7', ACHV:'smp_achv_v7', SCANHIST:'smp_scan_v7', LANG:'smp_lang_v7',
+  ING:'smp_ing_v5',
 };
+let selectedImage = null;
+let lastAIResult = null;
+
 const Store = {
   get(k, d=null){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){return d;} },
   set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){console.error(e);} },
@@ -1183,7 +1218,7 @@ function recipeCard(r, idx){
       <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-100 to-emerald-50 dark:from-brand-900/40 dark:to-emerald-900/30 flex items-center justify-center text-3xl shrink-0">${r.emoji}</div>
       <div class="flex-1 min-w-0">
         <h3 class="font-bold text-[var(--text)] leading-tight">${escapeHtml(localText(r.name))}</h3>
-        <p class="text-[11px] text-[var(--text-2)] mt-1 num-en">${r.macros.cal} • ${r.macros.p}P • ${r.macros.c}C • ${r.macros.f}F</p>
+        <p class="text-[11px] text-[var(--text-2)] mt-1 num-en">${fmt(r.macros.cal)} • ${fmt(r.macros.p)}P • ${fmt(r.macros.c)}C • ${fmt(r.macros.f)}F</p>
         <div class="flex items-center gap-2 mt-1 text-[10px] text-[var(--text-2)]">
           <span>⏱ ${r.time}m</span><span>📊 ${escapeHtml(difficultyLabel(r.difficulty))}</span>
           ${r.rating?`<span class="text-amber-500">★ ${r.rating}</span>`:''}
@@ -1302,16 +1337,16 @@ function renderHome(){
     const k = d.toISOString().slice(0,10);
     const log = Store.get(KEYS.LOG(k),{items:[]});
     const cal = (log.items||[]).reduce((a,it)=>a+(it.macros?.cal||0),0);
-    const dayLabel = state.lang==='ar' ? d.toLocaleDateString('ar-EG',{weekday:'short'}) : state.lang==='fr' ? d.toLocaleDateString('fr-FR',{weekday:'short'}) : d.toLocaleDateString('en-US',{weekday:'short'});
+    const dayLabel = state.lang==='ar' ? d.toLocaleDateString('ar-DZ',{weekday:'short', numberingSystem:'latn'}) : state.lang==='fr' ? d.toLocaleDateString('fr-FR',{weekday:'short'}) : d.toLocaleDateString('en-US',{weekday:'short'});
     weekData.push({day:dayLabel, cal, target:m.calories});
   }
   const maxCal = Math.max(m.calories, ...weekData.map(d=>d.cal), 1);
-  const todayDayLabel = state.lang==='ar' ? new Date().toLocaleDateString('ar-EG',{weekday:'short'}) : state.lang==='fr' ? new Date().toLocaleDateString('fr-FR',{weekday:'short'}) : new Date().toLocaleDateString('en-US',{weekday:'short'});
+  const todayDayLabel = state.lang==='ar' ? new Date().toLocaleDateString('ar-DZ',{weekday:'short', numberingSystem:'latn'}) : state.lang==='fr' ? new Date().toLocaleDateString('fr-FR',{weekday:'short'}) : new Date().toLocaleDateString('en-US',{weekday:'short'});
 
   const achv = Store.get(KEYS.ACHV, []);
   const achvList = ACHIEVEMENTS.filter(a => achv.includes(a.id));
 
-  const dateLabel = state.lang==='ar' ? new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'}) : state.lang==='fr' ? new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}) : new Date().toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long'});
+  const dateLabel = state.lang==='ar' ? new Date().toLocaleDateString('ar-DZ',{weekday:'long',day:'numeric',month:'long', numberingSystem:'latn'}) : state.lang==='fr' ? new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}) : new Date().toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long'});
 
   $('#app').innerHTML = `<div class="animate-fade-in p-4 space-y-4">
     <div class="flex items-center justify-between pt-2">
@@ -1329,7 +1364,7 @@ function renderHome(){
       <span class="text-lg">💡</span><p class="flex-1 leading-relaxed">${escapeHtml(tip)}</p>
     </div>
 
-    <div class="bg-gradient-to-br from-brand-500 via-brand-600 to-emerald-700 rounded-3xl p-5 text-white shadow-soft relative overflow-hidden">
+    <div class="bg-gradient-to-br from-brand-500 via-brand-600 to-emerald-700 rounded-[28px] p-5 text-white shadow-soft pro-glow premium-card relative overflow-hidden">
       <div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full"></div>
       <div class="absolute -left-4 -bottom-4 w-20 h-20 bg-white/5 rounded-full"></div>
       <div class="flex items-center gap-4 relative">
@@ -1337,13 +1372,13 @@ function renderHome(){
           <div class="absolute inset-0 rounded-full ring-p" style="--p:${pctCal}"></div>
           <div class="absolute inset-2 bg-white/15 backdrop-blur rounded-full flex flex-col items-center justify-center">
             <span class="text-[10px] opacity-90">${t('home.consumed')}</span>
-            <span class="text-2xl font-black num-en">${fmt(consumed.cal)}</span>
+            <span class="text-3xl font-black metric-number">${fmt(consumed.cal)}</span>
             <span class="text-[10px] opacity-90">/ ${fmt(m.calories)}</span>
           </div>
         </div>
         <div class="flex-1">
           <p class="text-sm opacity-90">${t('home.remaining')}</p>
-          <p class="text-3xl font-black num-en">${fmt(remain.cal)}</p>
+          <p class="text-4xl font-black metric-number leading-none">${fmt(remain.cal)}</p>
           <p class="text-xs opacity-80">${t('home.calUnit')}</p>
           <div class="mt-2 inline-flex items-center gap-1.5 bg-white/20 px-2.5 py-1 rounded-full text-xs font-bold">
             <span class="w-1.5 h-1.5 rounded-full bg-white pulse-soft"></span>${pctCal}${t('home.percent')}
@@ -1358,23 +1393,30 @@ function renderHome(){
       ${macroBar(t('home.fLabel'), consumed.f, m.fat, '#ef4444')}
     </div>
 
-    <div class="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 shadow-card">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="font-bold text-[var(--text)] text-sm">${t('home.weekChart')}</h2>
-        <span class="text-[10px] text-[var(--text-3)]">${t('home.avgPrefix')} ${fmt(Math.round(weekData.reduce((a,d)=>a+d.cal,0)/7))} ${t('home.calUnit')}</span>
+    <div class="bg-[var(--surface)] border border-[var(--border)] rounded-3xl p-4 shadow-card premium-card">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="section-title font-extrabold text-[var(--text)] text-sm">${t('home.weekChart')}</h2>
+          <p class="text-[10px] text-[var(--text-3)] mt-0.5">${t('home.avgPrefix')} ${fmt(Math.round(weekData.reduce((a,d)=>a+d.cal,0)/7))} ${t('home.calUnit')}</p>
+        </div>
+        <span class="text-[10px] font-bold text-brand-600 dark:text-brand-400">${fmt(m.calories)} ${t('home.calUnit')}</span>
       </div>
-      <div class="flex items-end justify-between gap-1 h-28">
+      ${weekData.every(d=>d.cal===0) ? `<div class="h-28 rounded-2xl bg-[var(--surface-2)] border border-dashed border-[var(--border)] flex flex-col items-center justify-center text-center px-4">
+        <div class="text-xl mb-1">📊</div>
+        <p class="text-xs font-semibold text-[var(--text-2)]">${escapeHtml(t('home.emptyLog'))}</p>
+        <p class="text-[10px] text-[var(--text-3)] mt-0.5">${escapeHtml(t('home.emptyLogHint'))}</p>
+      </div>` : `<div class="flex items-end justify-between gap-1.5 h-28">
         ${weekData.map(d => {
-          const h = clamp((d.cal/maxCal)*100, 4, 100);
+          const h = clamp((d.cal/maxCal)*100, 5, 100);
           const isToday = d.day === todayDayLabel;
           return `<div class="flex-1 flex flex-col items-center gap-1">
-            <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-md relative" style="height:100%">
-              <div class="absolute bottom-0 left-0 right-0 rounded-md chart-bar ${isToday?'bg-gradient-to-t from-brand-500 to-brand-400':'bg-gradient-to-t from-brand-200 to-brand-100 dark:from-brand-700 dark:to-brand-600'}" style="height:${h}%"></div>
+            <div class="w-full bg-[var(--surface-2)] rounded-lg relative overflow-hidden" style="height:100%">
+              <div class="absolute bottom-0 left-0 right-0 rounded-lg chart-bar ${isToday?'bg-gradient-to-t from-brand-600 to-brand-400':'bg-gradient-to-t from-brand-300 to-brand-100 dark:from-brand-700 dark:to-brand-500'}" style="height:${h}%"></div>
             </div>
-            <span class="text-[9px] text-[var(--text-3)]">${d.day}</span>
+            <span class="text-[9px] font-medium text-[var(--text-3)]">${d.day}</span>
           </div>`;
         }).join('')}
-      </div>
+      </div>`}
     </div>
 
     <div class="grid grid-cols-3 gap-2">
@@ -1421,7 +1463,7 @@ function renderHome(){
           <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-100 to-emerald-50 dark:from-brand-900/30 dark:to-emerald-900/20 flex items-center justify-center text-2xl shrink-0">${it.emoji||'🍴'}</div>
           <div class="flex-1 min-w-0">
             <p class="font-semibold text-[var(--text)] truncate text-sm">${escapeHtml(it.name)}</p>
-            <p class="text-[10px] text-[var(--text-2)] num-en">${it.time} • ${it.macros.cal} • ${it.macros.p}P/${it.macros.c}C/${it.macros.f}F</p>
+            <p class="text-[10px] text-[var(--text-2)] num-en">${it.time} • ${fmt(it.macros.cal)} • ${fmt(it.macros.p)}P/${fmt(it.macros.c)}C/${fmt(it.macros.f)}F</p>
           </div>
           <button data-action="del-meal" data-idx="${i}" class="text-gray-300 hover:text-red-500 p-2 transition" aria-label="del">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
@@ -1518,21 +1560,34 @@ function renderScanner(){
   document.querySelector('[data-action="trigger-camera"]').addEventListener('click', e => { e.preventDefault(); cam.click(); });
   document.querySelector('[data-action="trigger-gallery"]').addEventListener('click', e => { e.preventDefault(); gal.click(); });
 
-  function handleFile(file){
+  async function handleFile(file){
     if (!file) return;
+    if (!file.type.startsWith('image/')) { toast(t('toasts.readError')); return; }
     try{
-      const reader = new FileReader();
-      reader.onload = (ev) => { prevImg.src = ev.target.result; prev.classList.remove('hidden'); };
-      reader.onerror = () => toast(t('toasts.readError'));
-      reader.readAsDataURL(file);
-    }catch(err){ toast(t('toasts.genericError')); return; }
-    aiDetectIngredients(file.name).then(guess => {
-      const current = ing.value.trim();
-      const merged = Array.from(new Set([...current.split(/[\n,،;؛]+/).map(s=>s.trim()).filter(Boolean), ...guess])).join(', ');
-      ing.value = merged;
-      saveIngredients(merged);
-    });
+      const dataUrl = await compressImage(file, 1600, 0.82);
+      selectedImage = { dataUrl, mimeType: 'image/jpeg', name: file.name };
+      prevImg.src = dataUrl;
+      prev.classList.remove('hidden');
+      toast(state.lang==='ar' ? 'تم اختيار الصورة ✓' : state.lang==='fr' ? 'Image sélectionnée ✓' : 'Image selected ✓');
+    }catch(err){ toast(t('toasts.readError')); }
   }
+
+  async function compressImage(file, maxSize=1600, quality=0.82){
+    const src = await new Promise((resolve,reject)=>{
+      const r = new FileReader();
+      r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file);
+    });
+    const img = await new Promise((resolve,reject)=>{
+      const im = new Image(); im.onload=()=>resolve(im); im.onerror=reject; im.src=src;
+    });
+    const scale = Math.min(1, maxSize / Math.max(img.naturalWidth, img.naturalHeight));
+    const canvas = document.createElement('canvas');
+    canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
+    canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+    canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+    return canvas.toDataURL('image/jpeg', quality);
+  }
+
   cam.onchange = (e) => handleFile(e.target.files && e.target.files[0]);
   gal.onchange = (e) => handleFile(e.target.files && e.target.files[0]);
   ing.addEventListener('input', () => saveIngredients(ing.value));
@@ -1545,18 +1600,38 @@ function saveIngredients(text){
 
 /* ---------- AI Detection (محسّن) ---------- */
 function aiDetectIngredients(){
-  return new Promise(resolve => {
-    // خوارزمية ذكية: بناءً على اسم الملف أو hash عشوائي
-    const lang = state.lang;
-    const pool = lang==='ar' ? 
-      ['دجاج','طماطم','خس','بصل','ليمون','ثوم','زيت زيتون','أرز','بروكلي','بيض','تونة','جبنة','فلفل','كوسا','جزر','شوفان','زبادي'] :
-      lang==='fr' ?
-      ['poulet','tomate','laitue','oignon','citron','ail','huile olive','riz','brocoli','œuf','thon','fromage','poivron','courgette','carotte','avoine','yaourt'] :
-      ['chicken','tomato','lettuce','onion','lemon','garlic','olive oil','rice','broccoli','egg','tuna','cheese','pepper','zucchini','carrot','oats','yogurt'];
-    const n = 3 + Math.floor(Math.random()*3);
-    const picked = pool.sort(() => 0.5 - Math.random()).slice(0, n);
-    setTimeout(() => resolve(picked), 900);
-  });
+  // v5: no fake/random detection. Image analysis is performed by /api/ai.
+  return Promise.resolve([]);
+}
+
+function renderAIResult(result){
+  const r = result || {};
+  const n = r.nutrition || {};
+  const ingredients = Array.isArray(r.ingredients) ? r.ingredients : [];
+  const suggestions = Array.isArray(r.suggestions) ? r.suggestions : [];
+  const name = r.mealName || (state.lang==='ar'?'وجبة مكتشفة':'Detected meal');
+  const isFood = r.isFood !== false;
+  const confidence = Number(r.confidence || 0);
+  const card = document.createElement('div');
+  card.className='fixed inset-x-3 bottom-24 z-50 max-w-md mx-auto';
+  card.id='aiResultCard';
+  card.innerHTML=`<div class="bg-[var(--surface)] border border-[var(--border)] rounded-3xl p-4 shadow-2xl">
+    <div class="flex items-start justify-between gap-3">
+      <div><p class="text-[10px] uppercase tracking-wider text-brand-600 font-extrabold">AI analysis</p><h3 class="text-lg font-black text-[var(--text)]">${escapeHtml(name)}</h3><p class="text-xs text-[var(--text-2)] mt-1">${escapeHtml(r.description||'')}</p></div>
+      <button data-action="close-ai-result" class="text-[var(--text-3)] p-1">✕</button>
+    </div>
+    ${!isFood?`<div class="mt-3 rounded-2xl bg-amber-50 dark:bg-amber-900/20 p-3 text-sm font-semibold">${state.lang==='ar'?'الصورة لا تبدو كوجبة واضحة. جرّب صورة أوضح.':state.lang==='fr'?'L’image ne semble pas être un repas clair. Essayez une photo plus nette.':'The image does not appear to be a clear meal. Try a clearer photo.'}</div>`:`
+    <div class="grid grid-cols-4 gap-2 mt-4">
+      <div class="rounded-2xl bg-[var(--surface-2)] p-2 text-center"><b class="num-en block text-sm">${fmt(n.calories)}</b><span class="text-[9px] text-[var(--text-2)]">kcal</span></div>
+      <div class="rounded-2xl bg-[var(--surface-2)] p-2 text-center"><b class="num-en block text-sm">${fmt(n.protein)}</b><span class="text-[9px] text-[var(--text-2)]">P</span></div>
+      <div class="rounded-2xl bg-[var(--surface-2)] p-2 text-center"><b class="num-en block text-sm">${fmt(n.carbs)}</b><span class="text-[9px] text-[var(--text-2)]">C</span></div>
+      <div class="rounded-2xl bg-[var(--surface-2)] p-2 text-center"><b class="num-en block text-sm">${fmt(n.fat)}</b><span class="text-[9px] text-[var(--text-2)]">F</span></div>
+    </div>
+    <div class="mt-3 flex flex-wrap gap-1.5">${ingredients.slice(0,8).map(x=>`<span class="px-2.5 py-1 rounded-full bg-brand-50 dark:bg-brand-900/20 text-[10px] font-bold text-brand-700 dark:text-brand-300">${escapeHtml(typeof x==='string'?x:x.name||'')}</span>`).join('')}</div>
+    <p class="text-[9px] text-[var(--text-3)] mt-3">${state.lang==='ar'?'التقديرات الغذائية تقريبية وليست قياسًا طبيًا.':'Nutrition values are estimates, not medical measurements.'} ${confidence?`• ${fmt(Math.round(confidence*100))}% confidence`:''}</p>
+    <button data-action="add-ai-meal" class="w-full mt-3 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl py-3 font-black">${state.lang==='ar'?'إضافة إلى سجل اليوم':state.lang==='fr'?'Ajouter au journal':'Add to today’s log'}</button>`}
+  </div>`;
+  document.getElementById('aiResultCard')?.remove(); document.body.appendChild(card);
 }
 
 function renderRecipes(){
@@ -1639,13 +1714,13 @@ function renderWeight(){
     <div class="grid grid-cols-2 gap-3">
       <div class="bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl p-4 text-white shadow-soft">
         <p class="text-xs opacity-90">${t('weight.current')}</p>
-        <p class="text-3xl font-black num-en">${current}</p>
+        <p class="text-3xl font-black num-en">${fmt1(current)}</p>
         <p class="text-xs opacity-80">${t('weight.kg')}</p>
       </div>
       <div class="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 shadow-card">
         <p class="text-xs text-[var(--text-2)]">${t('weight.change')}</p>
-        <p class="text-2xl font-black ${diff<0?'text-green-600':'text-red-500'} num-en">${diff>0?'+':''}${diff.toFixed(1)}</p>
-        <p class="text-xs text-[var(--text-2)] num-en">${t('weight.goalSuffix')} ${goalWeight.toFixed(1)}</p>
+        <p class="text-2xl font-black ${diff<0?'text-green-600':'text-red-500'} num-en">${diff>0?'+':''}${fmt1(diff)}</p>
+        <p class="text-xs text-[var(--text-2)] num-en">${t('weight.goalSuffix')} ${fmt1(goalWeight)}</p>
       </div>
     </div>
 
@@ -1678,7 +1753,7 @@ function renderWeight(){
       <div class="space-y-1.5 max-h-60 overflow-y-auto hide-scroll">
         ${sorted.slice().reverse().slice(0,30).map(pt => `<div class="flex items-center justify-between p-2 bg-[var(--surface-2)] rounded-xl">
           <span class="text-sm text-[var(--text-2)] num-en">${pt.date}</span>
-          <span class="font-bold text-[var(--text)] num-en">${pt.weight} ${t('weight.kg')}</span>
+          <span class="font-bold text-[var(--text)] num-en">${fmt1(pt.weight)} ${t('weight.kg')}</span>
           <button data-action="del-weight" data-date="${pt.date}" class="text-gray-300 hover:text-red-500 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         </div>`).join('')}
       </div>
@@ -1692,7 +1767,7 @@ function renderSettings(){
   const theme = Store.get(KEYS.THEME, 'light');
   const lang = state.lang;
   const sub = Subscription.getCurrent();
-  const scansUsed = Store.get('smp_scans_used_v4', 0);
+  const scansUsed = Store.get('smp_scans_used_v7', 0);
   const scansLeft = sub.limit.scans === Infinity ? '∞' : Math.max(0, sub.limit.scans - scansUsed);
 
   $('#app').innerHTML = `<div class="animate-fade-in p-4 space-y-4">
@@ -1812,7 +1887,7 @@ function render(){
 }
 
 /* ---------- Event Delegation (النقرات) ---------- */
-document.addEventListener('click', (e) => {
+document.addEventListener('click', async (e) => {
   const target = e.target.closest('[data-action]');
   if (!target) return;
   const action = target.dataset.action;
@@ -1881,7 +1956,7 @@ document.addEventListener('click', (e) => {
   }
   if (action === 'trigger-camera'){ e.preventDefault(); $('#cameraInput').click(); return; }
   if (action === 'trigger-gallery'){ e.preventDefault(); $('#galleryInput').click(); return; }
-  if (action === 'remove-image'){ $('#previewImg').src = ''; $('#previewBox').classList.add('hidden'); return; }
+  if (action === 'remove-image'){ selectedImage=null; $('#previewImg').src = ''; $('#previewBox').classList.add('hidden'); return; }
   if (action === 'voice-input'){
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)){ toast(t('scan.noVoice')); return; }
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1909,10 +1984,9 @@ document.addEventListener('click', (e) => {
   }
   if (action === 'generate'){
     const text = $('#ingInput').value.trim();
-    if (!text){ toast(t('toasts.noIngredients')); return; }
-    // فحص الباقة
+    if (!text && !selectedImage){ toast(t('toasts.noIngredients')); return; }
     const sub = Subscription.getCurrent();
-    const scansUsed = Store.get('smp_scans_used_v4', 0);
+    const scansUsed = Store.get('smp_scans_used_v7', 0);
     if (scansUsed >= sub.limit.scans){
       openPricingModal();
       toast(state.lang==='ar'?'⚠️ وصلت لحد المسحات في الباقة المجانية':state.lang==='fr'?'⚠️ Limite de scans atteinte':'⚠️ Scan limit reached');
@@ -1921,30 +1995,41 @@ document.addEventListener('click', (e) => {
     Subscription.incrementScan();
     saveIngredients(text);
     const hist = Store.get(KEYS.SCANHIST, []);
-    hist.push({ time: new Date().toLocaleString(state.lang==='ar'?'ar-EG':state.lang==='fr'?'fr-FR':'en-US'), ing: text });
+    hist.push({ time: new Date().toLocaleString('en-US'), ing: text || (selectedImage?.name || 'image') });
     Store.set(KEYS.SCANHIST, hist.slice(-20));
     if (!Store.get(KEYS.ACHV, []).includes('first_scan')){ const a = Store.get(KEYS.ACHV, []); a.push('first_scan'); Store.set(KEYS.ACHV, a); }
     const loader = $('#scannerLoader');
     const stepEl = $('#loaderStep');
     loader.classList.remove('hidden');
     const steps = t('scan.steps');
-    let i = 0;
-    const stepTimer = setInterval(() => { i++; if (i < steps.length) stepEl.textContent = steps[i]; }, 600);
-    setTimeout(() => {
-      clearInterval(stepTimer);
-      loader.classList.add('hidden');
-      const consumed = state.log.items.reduce((a,it) => a + (it.macros?.cal||0), 0);
-      const remain = Math.max(200, (state.profile.macros.calories||2000) - consumed);
-      const recipes = generateRecipes(text, remain, state.profile.goal);
-      // تطبيق حد الوصفات حسب الباقة
-      const limited = recipes.slice(0, sub.limit.recipes === Infinity ? recipes.length : Math.min(recipes.length, sub.limit.recipes));
-      state.recipes = limited;
-      Store.set(KEYS.RECIPES, limited);
-      state.tab = 'recipes';
-      render();
-      toast(t('toasts.recipesFound') + ' ' + limited.length);
-    }, 2400);
+    let i = 0; stepEl.textContent = steps[0];
+    const stepTimer = setInterval(() => { i++; if (i < steps.length) stepEl.textContent = steps[i]; }, 700);
+    try{
+      const payload = {
+        language: state.lang,
+        goal: state.profile?.goal || 'maintain',
+        targetCalories: state.profile?.macros?.calories || 2000,
+        text: text || '',
+        image: selectedImage?.dataUrl || null
+      };
+      const result = await SmartMealAI.generate(payload);
+      lastAIResult = result;
+      clearInterval(stepTimer); loader.classList.add('hidden');
+      renderAIResult(result);
+    }catch(err){
+      clearInterval(stepTimer); loader.classList.add('hidden');
+      toast(state.lang==='ar' ? 'تعذر الاتصال بالذكاء الاصطناعي. تحقق من إعداد AI.' : state.lang==='fr' ? 'IA indisponible. Vérifiez la configuration.' : 'AI unavailable. Check the AI configuration.');
+      console.error(err);
+    }
     return;
+  }
+  if (action === 'close-ai-result'){ document.getElementById('aiResultCard')?.remove(); return; }
+  if (action === 'add-ai-meal'){
+    if (!lastAIResult?.isFood) return;
+    const n=lastAIResult.nutrition||{};
+    const meal={uid:'ai_'+Date.now(),name:lastAIResult.mealName||'AI meal',emoji:'🍽️',macros:{cal:Number(n.calories)||0,p:Number(n.protein)||0,c:Number(n.carbs)||0,f:Number(n.fat)||0},time:new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})};
+    state.log.items.push(meal); Store.set(KEYS.LOG(todayKey()),state.log);
+    document.getElementById('aiResultCard')?.remove(); state.tab='home'; render(); toast(t('toasts.mealAdded')); return;
   }
   if (action === 'open-add-meal'){ openAddMealModal(); return; }
   if (action === 'open-favs'){ openFavsModal(); return; }
@@ -2047,7 +2132,7 @@ document.addEventListener('click', (e) => {
 /* ---------- إضافة للسجل ---------- */
 function addMealToLog(r){
   const name = typeof r.name === 'object' ? localText(r.name) : r.name;
-  const item = { uid:'m_'+Date.now(), name, emoji:r.emoji, macros:r.macros, time: new Date().toLocaleTimeString(state.lang==='ar'?'ar-EG':state.lang==='fr'?'fr-FR':'en-US',{hour:'2-digit',minute:'2-digit'}) };
+  const item = { uid:'m_'+Date.now(), name, emoji:r.emoji, macros:r.macros, time: new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) };
   state.log.items.push(item);
   Store.set(KEYS.LOG(state.log.date), state.log);
   const newAch = checkAchievements(state.log.items, state.profile);
@@ -2094,7 +2179,7 @@ function openAddMealModal(){
 
 function openPricingModal(){
   const sub = Subscription.getCurrent();
-  const scansLeft = sub.limit.scans === Infinity ? '∞' : Math.max(0, sub.limit.scans - (Store.get('smp_scans_used_v4', 0)));
+  const scansLeft = sub.limit.scans === Infinity ? '∞' : Math.max(0, sub.limit.scans - (Store.get('smp_scans_used_v7', 0)));
   openModal(`<div class="flex items-center justify-between mb-5">
     <h2 class="text-xl font-black text-[var(--text)]">${state.lang==='ar'?'اختر باقتك':state.lang==='fr'?'Choisissez votre plan':'Choose Your Plan'}</h2>
     <button data-action="close-modal" class="text-[var(--text-2)] p-1"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -2166,7 +2251,7 @@ function openFavsModal(){
       <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-100 to-emerald-50 dark:from-brand-900/30 dark:to-emerald-900/20 flex items-center justify-center text-2xl shrink-0">${r.emoji}</div>
       <div class="flex-1 min-w-0">
         <p class="font-semibold text-[var(--text)] text-sm">${escapeHtml(localText(r.name))}</p>
-        <p class="text-[10px] text-[var(--text-2)] num-en">${r.macros.cal} • ${r.macros.p}P/${r.macros.c}C/${r.macros.f}F</p>
+        <p class="text-[10px] text-[var(--text-2)] num-en">${fmt(r.macros.cal)} • ${fmt(r.macros.p)}P/${fmt(r.macros.c)}C/${fmt(r.macros.f)}F</p>
       </div>
       <button data-action="add-meal" data-id="${r.id}" class="bg-brand-500 text-white text-xs font-bold px-3 py-2 rounded-lg">+</button>
     </div>`).join('')}

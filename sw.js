@@ -1,11 +1,11 @@
-const CACHE = 'smart-meal-v6';
+const CACHE = 'smart-meal-v10';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
+  './site.webmanifest',
   './smartmeal-icon-192.png',
   './smartmeal-icon-512.png',
-  './assets/css/style.css'
 ];
 
 self.addEventListener('install', event => {

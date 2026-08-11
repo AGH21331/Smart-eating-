@@ -2,7 +2,7 @@
   "id": "./",
   "name": "وجبتي الذكية - Smart Meal",
   "short_name": "Smart Meal",
-  "description": "مساعد ذكي لتخطيط الوجبات ومتابعة السعرات والماكروز",
+  "description": "تحليل الوجبات بالذكاء الاصطناعي ومتابعة السعرات والماكروز",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
