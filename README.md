@@ -1,10 +1,5 @@
-# Smart Meal — PRO v5
+# Smart Meal — Final Ultimate
 
-## Deploy
-1. Upload this folder to a Vercel project.
-2. Add environment variable `GEMINI_API_KEY` in Vercel.
-3. Optionally set `GEMINI_MODEL=gemini-3.6-flash`.
-4. Open the Vercel HTTPS URL and test Camera/Gallery AI.
-5. Use the Vercel URL in PWABuilder to generate the Android package.
+Premium Smart Meal PWA with Gemini nutrition, voice transcription and Gemini TTS.
 
-The AI key must stay on the server. Do not put it in `index.html`.
+Set `GEMINI_API_KEY` in Vercel Environment Variables. Optional: `GEMINI_MODEL=gemini-2.5-flash`, `GEMINI_TTS_MODEL=gemini-2.5-flash-preview-tts`.
