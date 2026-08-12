@@ -7,7 +7,7 @@
 <meta name="description" content="Smart Meal — AI nutrition, meal tracking and voice assistant.">
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/smartmeal-icon-192.png">
-<title>Smart Meal — وجبتي الذكية</title>
+<title id="pageTitle">Smart Meal — وجبتي الذكية</title>
 <style>
 :root{--bg:#f5f7f8;--card:#fff;--ink:#0e1720;--muted:#6f7d87;--line:#e7ecef;--brand:#12b886;--brand2:#0ea5a0;--accent:#f59e0b;--danger:#ef4444;--shadow:0 18px 50px rgba(14,23,32,.08);--soft:rgba(18,184,134,.1);--nav:rgba(255,255,255,.9)}
 [data-theme=dark]{--bg:#070b10;--card:#10171f;--ink:#eef4f3;--muted:#91a0ab;--line:#1d2831;--shadow:0 18px 55px rgba(0,0,0,.35);--nav:rgba(9,14,19,.9)}
@@ -21,140 +21,132 @@
 <div id="toast" class="toast"></div>
 <div class="wrap">
   <header class="topbar">
-    <div class="brand"><img src="/smartmeal-icon-192.png" alt=""><div><strong>وجبتي الذكية</strong><small>SMART MEAL PRO · ULTIMATE 2026</small></div></div>
+    <div class="brand"><img src="/smartmeal-icon-192.png" alt=""><div><strong id="brandName">وجبتي الذكية</strong><small>SMART MEAL PRO · ULTIMATE 2026</small></div></div>
     <div class="top-actions"><button class="icon-btn" id="langBtn" title="Language">AR</button><button class="icon-btn" id="themeBtn" title="Theme">☾</button></div>
   </header>
 
   <main id="home" class="page active">
     <section class="hero">
       <div class="hero-card">
-        <span class="hero-kicker">✦ SMART MEAL PRO · AI NUTRITION COACH</span>
+        <span class="hero-kicker" id="heroKicker">✦ SMART MEAL PRO · AI NUTRITION COACH</span>
         <h1 id="heroTitle">كل وجبة تحسبها اليوم، تقرّبك من هدفك.</h1>
         <p id="heroSub">صوّر وجبتك أو تحدّث مع المساعد الصوتي، وسنحوّلها إلى سعرات وماكروز وسجل يومي منظم.</p>
         <div class="hero-actions"><button class="btn btn-primary" data-nav="scan">📸 <span id="scanCta">حلّل وجبة</span></button><button class="btn btn-ghost" id="speakHero">🔊 استمع</button></div>
       </div>
-      <div class="goal-card"><div><div class="section-head"><h2>هدف اليوم</h2><span>محدث الآن</span></div><div class="ring" id="ring"><div class="ring-inner"><b class="num" id="calRemain">1850</b><span>سعرة متبقية</span></div></div></div><div class="goal-meta"><div class="mini"><b class="num" id="dayCal">650</b><span>تم تناولها</span></div><div class="mini"><b class="num">2500</b><span>الهدف</span></div></div></div>
+      <div class="goal-card"><div><div class="section-head"><h2 id="goalTitle">هدف اليوم</h2><span id="updatedNow">محدث الآن</span></div><div class="ring" id="ring"><div class="ring-inner"><b class="num" id="calRemain">1850</b><span id="remainingLabel">سعرة متبقية</span></div></div></div><div class="goal-meta"><div class="mini"><b class="num" id="dayCal">650</b><span id="consumedLabel">تم تناولها</span></div><div class="mini"><b class="num">2500</b><span id="targetLabel">الهدف</span></div></div></div>
     </section>
 
-    <section class="section"><div class="section-head"><h2>نظرة اليوم</h2><span>الماكروز</span></div><div class="grid-3">
-      <div class="metric"><div class="top"><span>بروتين</span><span>💪</span></div><div class="v"><span class="num" id="protein">62</span> غ</div><div class="bar"><i id="pbar" style="width:42%"></i></div></div>
-      <div class="metric"><div class="top"><span>كارب</span><span>⚡</span></div><div class="v"><span class="num" id="carbs">91</span> غ</div><div class="bar"><i id="cbar" style="width:51%"></i></div></div>
-      <div class="metric"><div class="top"><span>دهون</span><span>🥑</span></div><div class="v"><span class="num" id="fat">24</span> غ</div><div class="bar"><i id="fbar" style="width:36%"></i></div></div>
+    <section class="section"><div class="section-head"><h2 id="todayTitle">نظرة اليوم</h2><span id="macrosLabel">الماكروز</span></div><div class="grid-3">
+      <div class="metric"><div class="top"><span id="proteinLabel">بروتين</span><span>💪</span></div><div class="v"><span class="num" id="protein">62</span> غ</div><div class="bar"><i id="pbar" style="width:42%"></i></div></div>
+      <div class="metric"><div class="top"><span id="carbsLabel">كارب</span><span>⚡</span></div><div class="v"><span class="num" id="carbs">91</span> غ</div><div class="bar"><i id="cbar" style="width:51%"></i></div></div>
+      <div class="metric"><div class="top"><span id="fatLabel">دهون</span><span>🥑</span></div><div class="v"><span class="num" id="fat">24</span> غ</div><div class="bar"><i id="fbar" style="width:36%"></i></div></div>
     </div></section>
 
-    <section class="section"><div class="section-head"><h2>آخر وجباتك</h2><span>اليوم</span></div><div class="feed" id="mealFeed"></div></section>
+    <section class="section"><div class="section-head"><h2 id="recentTitle">آخر وجباتك</h2><span id="todayLabel">اليوم</span></div><div class="feed" id="mealFeed"></div></section>
   </main>
 
   <main id="scan" class="page">
-    <section class="section"><div class="section-head"><div><h2>AI Food Scanner</h2><span>كاميرا · معرض · صوت</span></div><span id="aiStatus">● جاهز</span></div>
+    <section class="section"><div class="section-head"><div><h2 id="scannerTitle">AI Food Scanner</h2><span id="scannerTools">كاميرا · معرض · صوت</span></div><span id="aiStatus">● جاهز</span></div>
       <div class="scan">
         <div class="scan-top">
-          <div class="scan-visual" id="preview"><div class="scan-placeholder"><div class="camera">🥗</div><h3>ضع وجبتك أمام الذكاء الاصطناعي</h3><p>سأتعرف على الطعام وأقدّر السعرات والماكروز.</p></div></div>
+          <div class="scan-visual" id="preview"><div class="scan-placeholder"><div class="camera">🥗</div><h3 id="scannerHeadline">ضع وجبتك أمام الذكاء الاصطناعي</h3><p id="scannerSub">سأتعرف على الطعام وأقدّر السعرات والماكروز.</p></div></div>
           <div class="scan-panel">
-            <div class="actions"><button class="btn btn-brand" id="cameraBtn">📷 الكاميرا</button><button class="btn btn-soft" id="galleryBtn">🖼️ المعرض</button></div>
+            <div class="actions"><button class="btn btn-brand" id="cameraBtn">📷 <span id="cameraLabel">الكاميرا</span></button><button class="btn btn-soft" id="galleryBtn">🖼️ <span id="galleryLabel">المعرض</span></button></div>
             <input id="fileInput" type="file" accept="image/*" capture="environment" hidden>
-            <div class="field"><label>وصف الوجبة (اختياري)</label><textarea id="mealText" rows="3" placeholder="مثال: دجاج مشوي مع أرز وسلطة..."></textarea></div>
+            <div class="field"><label id="mealDescriptionLabel">وصف الوجبة (اختياري)</label><textarea id="mealText" rows="3" placeholder="مثال: دجاج مشوي مع أرز وسلطة..."></textarea></div>
             <div class="voice-row"><button class="voice-btn" id="voiceBtn">🎙️ <span id="voiceLabel">تحدث عن وجبتك</span></button></div>
             <div class="voice-status" id="voiceStatus">مساعد صوتي ذكي: تحدث مباشرة، ثم يحول كلامك إلى نص ويضيفه للوجبة.</div>
-            <button class="btn btn-brand" id="analyzeBtn" style="width:100%;margin-top:10px">✨ حلّل الوجبة</button>
-            <div class="drop" style="margin-top:12px"><strong>AI Nutrition Engine</strong><small>النتيجة تقديرية وليست تشخيصًا طبيًا.</small></div>
+            <button class="btn btn-brand" id="analyzeBtn" style="width:100%;margin-top:10px">✨ <span id="analyzeLabel">حلّل الوجبة</span></button>
+            <div class="drop" style="margin-top:12px"><strong id="engineTitle">✦ Smart Meal AI · Powered by Gemini</strong><small id="estimateNote">النتيجة تقديرية وليست تشخيصًا طبيًا.</small></div>
           </div>
         </div>
         <div id="result" class="result">
           <div class="result-head"><div><h3 id="mealName">—</h3><p id="mealDesc" style="color:var(--muted);margin:5px 0 0"></p></div><span class="pill" id="confidence">—</span></div>
-          <div class="result-grid"><div class="rbox"><b class="num" id="rCal">0</b><span>سعرة</span></div><div class="rbox"><b class="num" id="rP">0</b><span>بروتين g</span></div><div class="rbox"><b class="num" id="rC">0</b><span>كارب g</span></div><div class="rbox"><b class="num" id="rF">0</b><span>دهون g</span></div></div>
+          <div class="result-grid"><div class="rbox"><b class="num" id="rCal">0</b><span id="resultCalLabel">سعرة</span></div><div class="rbox"><b class="num" id="rP">0</b><span id="resultProteinLabel">بروتين g</span></div><div class="rbox"><b class="num" id="rC">0</b><span id="resultCarbsLabel">كارب g</span></div><div class="rbox"><b class="num" id="rF">0</b><span id="resultFatLabel">دهون g</span></div></div>
           <div class="chips" id="ingredients"></div>
-          <div style="display:flex;gap:9px;margin-top:14px;flex-wrap:wrap"><button class="btn btn-brand" id="addMeal">＋ أضف إلى يومي</button><button class="btn btn-soft" id="speakResult">🔊 اقرأ النتيجة</button></div>
+          <div style="display:flex;gap:9px;margin-top:14px;flex-wrap:wrap"><button class="btn btn-brand" id="addMeal">＋ <span id="addMealLabel">أضف إلى يومي</span></button><button class="btn btn-soft" id="speakResult">🔊 <span id="speakResultLabel">اقرأ النتيجة</span></button></div>
         </div>
       </div>
     </section>
   </main>
 
-  <main id="history" class="page"><section class="section"><div class="section-head"><h2>السجل</h2><span>وجباتك المحفوظة</span></div><div id="historyList" class="feed"></div></section></main>
-  <main id="settings" class="page"><section class="section"><div class="section-head"><h2>الإعدادات</h2><span>Smart Meal</span></div><div class="metric"><div class="section-head"><h2>حسابك</h2><span>Pro ready</span></div><p style="color:var(--muted);line-height:1.7">هذه النسخة مصممة لتصبح منتجًا مدفوعًا بعد توصيل الاشتراكات في Google Play.</p><div class="actions"><button class="btn btn-soft" id="clearBtn">مسح السجل</button><button class="btn btn-brand" id="healthBtn">فحص النظام</button></div><pre id="diag" style="white-space:pre-wrap;color:var(--muted);font-size:11px;margin-top:12px"></pre></div></section></main>
+  <main id="history" class="page"><section class="section"><div class="section-head"><h2 id="historyTitle">السجل</h2><span id="savedMealsLabel">وجباتك المحفوظة</span></div><div id="historyList" class="feed"></div></section></main>
+  <main id="settings" class="page"><section class="section"><div class="section-head"><h2 id="settingsTitle">الإعدادات</h2><span>Smart Meal</span></div><div class="metric"><div class="section-head"><h2 id="accountTitle">حسابك</h2><span id="proReady">Pro ready</span></div><p id="accountNote" style="color:var(--muted);line-height:1.7">هذه النسخة مصممة لتصبح منتجًا مدفوعًا بعد توصيل الاشتراكات في Google Play.</p><div class="actions"><button class="btn btn-soft" id="clearBtn" data-i18n="clearHistory">مسح السجل</button><button class="btn btn-brand" id="healthBtn" data-i18n="system">فحص النظام</button></div><pre id="diag" style="white-space:pre-wrap;color:var(--muted);font-size:11px;margin-top:12px"></pre></div></section></main>
 </div>
-<nav class="bottom"><button class="active" data-nav="home">⌂<div>الرئيسية</div></button><button data-nav="scan">◎<div>الماسح</div></button><button data-nav="history">◔<div>السجل</div></button><button data-nav="settings">☰<div>المزيد</div></button></nav>
+<nav class="bottom"><button class="active" data-nav="home">⌂<div id="navHome">الرئيسية</div></button><button data-nav="scan">◎<div id="navScan">الماسح</div></button><button data-nav="history">◔<div id="navHistory">السجل</div></button><button data-nav="settings">☰<div id="navMore">المزيد</div></button></nav>
 <script>
 const $=s=>document.querySelector(s);const $$=s=>[...document.querySelectorAll(s)];
 const STORE_KEY='smartmeal-final-v1';
 const state=JSON.parse(localStorage.getItem(STORE_KEY)||'{}'); state.history ||= []; state.lang ||= 'ar'; state.theme ||= 'light'; state.currentResult ||= null;
-const i18n={ar:{hero:'كل وجبة تحسبها اليوم، تقرّبك من هدفك.',sub:'صوّر وجبتك أو تحدّث مع المساعد الصوتي، وسنحوّلها إلى سعرات وماكروز وسجل يومي منظم.',scan:'حلّل وجبة',speak:'استمع',voice:'تحدث عن وجبتك',voiceReady:'مساعد صوتي ذكي: تحدث مباشرة، ثم يحول كلامك إلى نص ويضيفه للوجبة.',voiceRec:'جاري التسجيل… قل ما أكلت.',voiceWait:'تحويل كلامك إلى نص…',voiceDone:'تم تحويل صوتك إلى نص.',voiceErr:'تعذر تحويل الصوت. جرّب مرة أخرى.',aiReady:'● جاهز',aiWait:'● يحلل الآن',aiErr:'● غير متاح',noImage:'اختر صورة أو اكتب وصفًا للوجبة.',aiMissing:'AI غير مضبوط على الخادم بعد.',added:'تمت إضافة الوجبة إلى يومك.',noVoice:'الميكروفون غير متاح في هذا المتصفح.',system:'فحص النظام'},en:{hero:'Every meal you log brings you closer to your goal.',sub:'Scan your meal or talk to your AI coach to turn food into calories, macros and a clean daily log.',scan:'Analyze meal',speak:'Listen',voice:'Describe your meal',voiceReady:'Smart voice assistant: speak naturally and your words are added to the meal.',voiceRec:'Recording… tell me what you ate.',voiceWait:'Converting your speech to text…',voiceDone:'Voice converted successfully.',voiceErr:'Voice conversion failed. Try again.',aiReady:'● Ready',aiWait:'● Analyzing',aiErr:'● Unavailable',noImage:'Choose an image or describe the meal.',aiMissing:'AI is not configured on the server yet.',added:'Meal added to your day.',noVoice:'Microphone unavailable in this browser.',system:'System check'},fr:{hero:'Chaque repas enregistré vous rapproche de votre objectif.',sub:'Scannez votre repas ou parlez à votre coach IA pour obtenir calories, macros et historique.',scan:'Analyser',speak:'Écouter',voice:'Décrire le repas',voiceReady:'Enregistrement direct + transcription IA.',voiceRec:'Enregistrement… dites ce que vous avez mangé.',voiceWait:'Conversion de votre voix…',voiceDone:'Voix convertie.',voiceErr:'Échec de conversion. Réessayez.',aiReady:'● Prêt',aiWait:'● Analyse',aiErr:'● Indisponible',noImage:'Choisissez une image ou décrivez le repas.',aiMissing:'IA non configurée sur le serveur.',added:'Repas ajouté.',noVoice:'Microphone indisponible.',system:'État du système'}};
-function t(k){return i18n[state.lang][k]||k} function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state))} function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),2800)}
+const i18n={
+ ar:{brand:'وجبتي الذكية',title:'Smart Meal — وجبتي الذكية',kicker:'✦ SMART MEAL PRO · AI NUTRITION COACH',hero:'كل وجبة تسجلها اليوم تقرّبك من هدفك.',sub:'صوّر وجبتك أو تحدث مع مساعدك الذكي لتحويل الطعام إلى سعرات وماكروز وسجل يومي واضح.',scan:'حلّل الوجبة',speak:'استمع',goal:'هدف اليوم',updated:'محدث الآن',remaining:'سعرة متبقية',consumed:'تم تناولها',target:'الهدف',today:'نظرة اليوم',macros:'الماكروز',protein:'بروتين',carbs:'كارب',fat:'دهون',recent:'آخر وجباتك',todayLabel:'اليوم',scanner:'AI Food Scanner',scannerTools:'كاميرا · معرض · صوت',scannerHeadline:'ضع وجبتك أمام الذكاء الاصطناعي',scannerSub:'سأتعرف على الطعام وأقدّر السعرات والماكروز.',camera:'الكاميرا',gallery:'المعرض',mealDescLabel:'وصف الوجبة (اختياري)',placeholder:'مثال: دجاج مشوي مع أرز وسلطة...',voice:'تحدث عن وجبتك',voiceReady:'مساعد صوتي ذكي: اضغط وابدأ الكلام، ثم سأحوّل صوتك إلى نص.',voiceRec:'جاري التسجيل… تحدث عن وجبتك.',voiceWait:'تحليل التسجيل الصوتي…',voiceDone:'تم تحويل صوتك إلى نص.',voiceErr:'تعذر تحويل الصوت. تأكد من إذن الميكروفون واتصال الإنترنت.',analyze:'حلّل الوجبة',engine:'AI Nutrition Engine',estimate:'النتيجة تقديرية وليست تشخيصًا طبيًا.',cal:'سعرة',proteinG:'بروتين g',carbsG:'كارب g',fatG:'دهون g',add:'أضف إلى يومي',speakResult:'اقرأ النتيجة',history:'السجل',saved:'وجباتك المحفوظة',settings:'الإعدادات',account:'حسابك',pro:'جاهز لـ Pro',accountNote:'هذه النسخة مصممة لتصبح منتجًا مدفوعًا بعد توصيل الاشتراكات في Google Play.',clearHistory:'مسح السجل',system:'فحص النظام',navHome:'الرئيسية',navScan:'الماسح',navHistory:'السجل',navMore:'المزيد',noImage:'اختر صورة أو اكتب وصفًا للوجبة.',aiReady:'● جاهز',aiWait:'● يحلل الآن',aiErr:'● غير متاح',added:'تمت إضافة الوجبة إلى يومك.',noVoice:'تعذر الوصول إلى الميكروفون. اسمح به من إعدادات المتصفح.',emptyHistory:'لا توجد وجبات محفوظة بعد.',savedToday:'محفوظ اليوم',notSure:'غير متأكد',clearDone:'تم مسح السجل.',nonFood:'الصورة لا تبدو كوجبة واضحة.',tryClear:'حاول التقاط صورة أوضح للطعام.',confidence:'ثقة',aiMeal:'وجبة AI',defaultMeal:'وجبة',ttsErr:'تعذر تشغيل الصوت. حاول مرة أخرى.',aiPowered:'✦ Smart Meal AI · Powered by Gemini'},
+ en:{brand:'Smart Meal',title:'Smart Meal — AI Nutrition',kicker:'✦ SMART MEAL PRO · AI NUTRITION COACH',hero:'Every meal you log brings you closer to your goal.',sub:'Scan your meal or talk to your AI assistant to turn food into calories, macros and a clear daily log.',scan:'Analyze meal',speak:'Listen',goal:"Today's goal",updated:'Updated now',remaining:'calories left',consumed:'consumed',target:'target',today:"Today's overview",macros:'Macros',protein:'Protein',carbs:'Carbs',fat:'Fat',recent:'Recent meals',todayLabel:'Today',scanner:'AI Food Scanner',scannerTools:'Camera · Gallery · Voice',scannerHeadline:'Put your meal in front of AI',scannerSub:'I will identify the food and estimate calories and macros.',camera:'Camera',gallery:'Gallery',mealDescLabel:'Meal description (optional)',placeholder:'Example: grilled chicken with rice and salad...',voice:'Describe your meal',voiceReady:'Smart voice assistant: tap and speak, then I will turn your voice into text.',voiceRec:'Recording… describe your meal.',voiceWait:'Processing your voice…',voiceDone:'Voice converted successfully.',voiceErr:'Voice conversion failed. Check microphone permission and your connection.',analyze:'Analyze meal',engine:'AI Nutrition Engine',estimate:'Estimates only — not medical advice.',cal:'Calories',proteinG:'Protein g',carbsG:'Carbs g',fatG:'Fat g',add:'Add to my day',speakResult:'Read result',history:'History',saved:'Saved meals',settings:'Settings',account:'Your account',pro:'Pro ready',accountNote:'This version is designed to become a paid product after Google Play subscriptions are connected.',clearHistory:'Clear history',system:'System check',navHome:'Home',navScan:'Scanner',navHistory:'History',navMore:'More',noImage:'Choose an image or describe the meal.',aiReady:'● Ready',aiWait:'● Analyzing',aiErr:'● Unavailable',added:'Meal added to your day.',noVoice:'Microphone access failed. Allow it in browser settings.',emptyHistory:'No saved meals yet.',savedToday:'Saved today',notSure:'Not sure',clearDone:'History cleared.',nonFood:'The image does not look like a clear meal.',tryClear:'Try taking a clearer food photo.',confidence:'confidence',aiMeal:'AI meal',defaultMeal:'Meal',ttsErr:'Audio playback failed. Try again.',aiPowered:'✦ Smart Meal AI · Powered by Gemini'},
+ fr:{brand:'Smart Meal',title:'Smart Meal — Nutrition IA',kicker:'✦ SMART MEAL PRO · COACH NUTRITION IA',hero:'Chaque repas enregistré vous rapproche de votre objectif.',sub:'Scannez votre repas ou parlez à votre assistant IA pour obtenir calories, macros et historique quotidien.',scan:'Analyser le repas',speak:'Écouter',goal:"Objectif du jour",updated:'Mis à jour maintenant',remaining:'calories restantes',consumed:'consommées',target:'objectif',today:'Vue du jour',macros:'Macros',protein:'Protéines',carbs:'Glucides',fat:'Lipides',recent:'Repas récents',todayLabel:"Aujourd'hui",scanner:'Scanner alimentaire IA',scannerTools:'Caméra · Galerie · Voix',scannerHeadline:"Présentez votre repas à l'IA",scannerSub:"J'identifie les aliments et j'estime les calories et les macros.",camera:'Caméra',gallery:'Galerie',mealDescLabel:'Description du repas (facultatif)',placeholder:'Exemple : poulet grillé avec riz et salade...',voice:'Décrire le repas',voiceReady:'Assistant vocal intelligent : appuyez et parlez, puis je transforme votre voix en texte.',voiceRec:'Enregistrement… décrivez votre repas.',voiceWait:'Traitement de votre voix…',voiceDone:'Voix convertie avec succès.',voiceErr:'Échec de conversion. Vérifiez le micro et votre connexion.',analyze:'Analyser le repas',engine:'Moteur nutrition IA',estimate:'Estimations uniquement — pas un avis médical.',cal:'Calories',proteinG:'Protéines g',carbsG:'Glucides g',fatG:'Lipides g',add:'Ajouter à ma journée',speakResult:'Lire le résultat',history:'Historique',saved:'Repas enregistrés',settings:'Paramètres',account:'Votre compte',pro:'Prêt pour Pro',accountNote:'Cette version est conçue pour devenir un produit payant après connexion des abonnements Google Play.',clearHistory:"Effacer l'historique",system:'État du système',navHome:'Accueil',navScan:'Scanner',navHistory:'Historique',navMore:'Plus',noImage:'Choisissez une image ou décrivez le repas.',aiReady:'● Prêt',aiWait:'● Analyse',aiErr:'● Indisponible',added:'Repas ajouté à votre journée.',noVoice:"Accès au micro impossible. Autorisez-le dans les réglages du navigateur.",emptyHistory:'Aucun repas enregistré.',savedToday:"Enregistré aujourd'hui",notSure:'Incertain',clearDone:'Historique effacé.',nonFood:"L'image ne semble pas être un repas clair.",tryClear:'Essayez une photo plus nette.',confidence:'confiance',aiMeal:'Repas IA',defaultMeal:'Repas',ttsErr:'Lecture audio impossible. Réessayez.',aiPowered:'✦ Smart Meal AI · Powered by Gemini'}
+};
+function t(k){return i18n[state.lang][k]||i18n.en[k]||k}
+function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state))}
+function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),2800)}
 function applyTheme(){document.documentElement.dataset.theme=state.theme;$('#themeBtn').textContent=state.theme==='dark'?'☀':'☾'}
-function applyLang(){document.documentElement.lang=state.lang;document.documentElement.dir=state.lang==='ar'?'rtl':'ltr';$('#langBtn').textContent=state.lang.toUpperCase();$('#heroTitle').textContent=t('hero');$('#heroSub').textContent=t('sub');$('#scanCta').textContent=t('scan');$('#voiceLabel').textContent=t('voice');$('#voiceStatus').textContent=t('voiceReady');$('#speakHero').textContent='🔊 '+t('speak');renderHistory()}
+function applyLang(){
+ document.documentElement.lang=state.lang;document.documentElement.dir=state.lang==='ar'?'rtl':'ltr';$('#langBtn').textContent=state.lang.toUpperCase();
+ const map={pageTitle:'title',brandName:'brand',heroKicker:'kicker',heroTitle:'hero',heroSub:'sub',scanCta:'scan',speakHero:'speak',goalTitle:'goal',updatedNow:'updated',remainingLabel:'remaining',consumedLabel:'consumed',targetLabel:'target',todayTitle:'today',macrosLabel:'macros',proteinLabel:'protein',carbsLabel:'carbs',fatLabel:'fat',recentTitle:'recent',todayLabel:'todayLabel',scannerTitle:'scanner',scannerTools:'scannerTools',scannerHeadline:'scannerHeadline',scannerSub:'scannerSub',cameraLabel:'camera',galleryLabel:'gallery',mealDescriptionLabel:'mealDescLabel',voiceLabel:'voice',voiceStatus:'voiceReady',analyzeLabel:'analyze',engineTitle:'engine',estimateNote:'estimate',resultCalLabel:'cal',resultProteinLabel:'proteinG',resultCarbsLabel:'carbsG',resultFatLabel:'fatG',addMealLabel:'add',speakResultLabel:'speakResult',historyTitle:'history',savedMealsLabel:'saved',settingsTitle:'settings',accountTitle:'account',proReady:'pro',accountNote:'accountNote',clearLabel:'clearHistory',systemLabel:'system',navHome:'navHome',navScan:'navScan',navHistory:'navHistory',navMore:'navMore'};
+ Object.entries(map).forEach(([id,key])=>{const el=document.getElementById(id);if(el)el.textContent=t(key)});
+ $('#mealText').placeholder=t('placeholder'); $('#aiStatus').textContent=t('aiReady'); renderHistory(); renderDefaults();
+}
 function showPage(id){$$('.page').forEach(x=>x.classList.toggle('active',x.id===id));$$('.bottom button').forEach(x=>x.classList.toggle('active',x.dataset.nav===id));window.scrollTo({top:0,behavior:'smooth'})}
 $$('[data-nav]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.nav)));
 $('#themeBtn').onclick=()=>{state.theme=state.theme==='dark'?'light':'dark';save();applyTheme()};
 $('#langBtn').onclick=()=>{state.lang=state.lang==='ar'?'en':state.lang==='en'?'fr':'ar';save();applyLang()};
-function renderHistory(){const box=$('#historyList');box.innerHTML='';const data=state.history.slice(0,8);if(!data.length){box.innerHTML='<div class="metric">لا توجد وجبات محفوظة بعد.</div>';return} data.forEach(m=>{const el=document.createElement('div');el.className='meal';el.innerHTML=`<div><b>${escapeHtml(m.name)}</b><small>${escapeHtml(m.desc||'AI meal')}</small></div><div class="cal num">${m.cal||0} kcal</div>`;box.appendChild(el)});}
+function renderHistory(){const box=$('#historyList');box.innerHTML='';const data=state.history.slice(0,8);if(!data.length){box.innerHTML='<div class="metric">'+escapeHtml(t('emptyHistory'))+'</div>';return} data.forEach(m=>{const el=document.createElement('div');el.className='meal';el.innerHTML=`<div><b>${escapeHtml(m.name)}</b><small>${escapeHtml(m.desc||t('aiMeal'))}</small></div><div class="cal num">${m.cal||0} kcal</div>`;box.appendChild(el)});}
+function renderDefaults(){const defaults={ar:[['فطور غني بالبروتين',420],['غداء متوازن',650],['سناك',210]],en:[['Protein breakfast',420],['Balanced lunch',650],['Snack',210]],fr:[['Petit-déjeuner protéiné',420],['Déjeuner équilibré',650],['Collation',210]]};$('#mealFeed').innerHTML=defaults[state.lang].map(([n,c])=>`<div class="meal"><div><b>${n}</b><small>${t('savedToday')}</small></div><div class="cal num">${c} kcal</div></div>`).join('')}
 function escapeHtml(s){return String(s??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]))}
-const mealsDefault=[['فطور غني بالبروتين',420],['غداء متوازن',650],['سناك',210]];$('#mealFeed').innerHTML=mealsDefault.map(([n,c])=>`<div class="meal"><div><b>${n}</b><small>محفوظ اليوم</small></div><div class="cal num">${c} kcal</div></div>`).join('');
 let selectedImage='';
 function setPreview(url){selectedImage=url;$('#preview').innerHTML=`<img src="${url}" alt="meal" style="width:100%;height:100%;object-fit:cover;display:block;max-height:380px">`}
 $('#cameraBtn').onclick=()=>{const inp=$('#fileInput');inp.setAttribute('capture','environment');inp.click()}; $('#galleryBtn').onclick=()=>{const inp=$('#fileInput');inp.removeAttribute('capture');inp.click()};
-$('#fileInput').onchange=e=>{const f=e.target.files?.[0];if(!f)return; if(!f.type.startsWith('image/'))return toast('اختر صورة فقط'); const r=new FileReader();r.onload=()=>setPreview(r.result);r.readAsDataURL(f)};
-async function analyze(){const text=$('#mealText').value.trim();if(!selectedImage&&!text)return toast(t('noImage'));$('#aiStatus').textContent=t('aiWait');$('#analyzeBtn').disabled=true;$('#analyzeBtn').innerHTML='<span class="loading">جاري التحليل <i class="dot"></i><i class="dot"></i><i class="dot"></i></span>';try{const r=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:selectedImage,text,language:state.lang,goal:'maintain',targetCalories:2500})});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'AI unavailable'); if(data.isFood===false){toast('الصورة لا تبدو كوجبة واضحة.');return showResult({mealName:'غير متأكد',description:'حاول التقاط صورة أوضح للطعام.',confidence:0,nutrition:{calories:0,protein:0,carbs:0,fat:0},ingredients:[]})} showResult(data); }catch(e){console.error(e);$('#aiStatus').textContent=t('aiErr');toast(e.message||t('aiErr'))}finally{$('#aiStatus').textContent=t('aiReady');$('#analyzeBtn').disabled=false;$('#analyzeBtn').textContent='✨ '+t('scan')}}
-function showResult(d){state.currentResult=d;save();$('#result').classList.add('show');$('#mealName').textContent=d.mealName||'وجبة';$('#mealDesc').textContent=d.description||'';$('#confidence').textContent=Math.round((d.confidence||0)*100)+'% confidence';$('#rCal').textContent=d.nutrition?.calories||0;$('#rP').textContent=d.nutrition?.protein||0;$('#rC').textContent=d.nutrition?.carbs||0;$('#rF').textContent=d.nutrition?.fat||0;$('#ingredients').innerHTML=(d.ingredients||[]).map(x=>`<span class="chip">${escapeHtml(x.name)} · ${escapeHtml(x.quantity)}</span>`).join('')}
+$('#fileInput').onchange=e=>{const f=e.target.files?.[0];if(!f)return; if(!f.type.startsWith('image/'))return toast(state.lang==='fr'?'Choisissez une image.':state.lang==='en'?'Choose an image only.':'اختر صورة فقط'); const r=new FileReader();r.onload=()=>setPreview(r.result);r.readAsDataURL(f)};
+async function analyze(){const text=$('#mealText').value.trim();if(!selectedImage&&!text)return toast(t('noImage'));$('#aiStatus').textContent=t('aiWait');$('#analyzeBtn').disabled=true;$('#analyzeBtn').innerHTML='<span class="loading">'+t('voiceWait')+' <i class="dot"></i><i class="dot"></i><i class="dot"></i></span>';try{const r=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:selectedImage,text,language:state.lang,goal:'maintain',targetCalories:2500})});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'AI unavailable'); if(data.isFood===false){toast(t('nonFood'));return showResult({mealName:t('notSure'),description:t('tryClear'),confidence:0,nutrition:{calories:0,protein:0,carbs:0,fat:0},ingredients:[]})} showResult(data); }catch(e){console.error(e);$('#aiStatus').textContent=t('aiErr');toast(e.message||t('aiErr'))}finally{$('#aiStatus').textContent=t('aiReady');$('#analyzeBtn').disabled=false;$('#analyzeBtn').innerHTML='✨ <span id="analyzeLabel">'+t('analyze')+'</span>'}}
+function showResult(d){state.currentResult=d;save();$('#result').classList.add('show');$('#mealName').textContent=d.mealName||t('defaultMeal');$('#mealDesc').textContent=d.description||'';$('#confidence').textContent=Math.round((d.confidence||0)*100)+'% '+t('confidence');$('#rCal').textContent=d.nutrition?.calories||0;$('#rP').textContent=d.nutrition?.protein||0;$('#rC').textContent=d.nutrition?.carbs||0;$('#rF').textContent=d.nutrition?.fat||0;$('#ingredients').innerHTML=(d.ingredients||[]).map(x=>`<span class="chip">${escapeHtml(x.name)} · ${escapeHtml(x.quantity)}</span>`).join('')}
 $('#analyzeBtn').onclick=analyze;
-$('#addMeal').onclick=()=>{const d=state.currentResult;if(!d)return;state.history.unshift({name:d.mealName||'Meal',desc:d.description||'',cal:d.nutrition?.calories||0,ts:Date.now()});save();renderHistory();toast(t('added'));showPage('home')};
+$('#addMeal').onclick=()=>{const d=state.currentResult;if(!d)return;state.history.unshift({name:d.mealName||t('defaultMeal'),desc:d.description||'',cal:d.nutrition?.calories||0,ts:Date.now()});save();renderHistory();toast(t('added'));showPage('home')};
 async function speakText(text){
+  const clean=String(text||'').trim(); if(!clean)return false;
   try{
-    const r=await fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,language:state.lang})});
+    const r=await fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:clean,language:state.lang})});
     const d=await r.json().catch(()=>({}));
-    if(r.ok && d.audio){const audio=new Audio(d.audio);audio.onended=()=>URL.revokeObjectURL(audio.src);await audio.play();return true;}
-    throw Error(d.error||'TTS unavailable');
+    if(r.ok && d.audio){
+      const audio=new Audio(); audio.preload='auto';
+      audio.src=d.audio; audio.volume=1;
+      await new Promise((resolve,reject)=>{audio.oncanplaythrough=resolve;audio.onerror=reject;setTimeout(()=>reject(new Error('audio timeout')),12000);});
+      await audio.play(); return true;
+    }
+    throw new Error(d.error||'TTS unavailable');
   }catch(e){
-    const SR=window.speechSynthesis;
-    if(SR){try{SR.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=state.lang==='fr'?'fr-FR':state.lang==='en'?'en-US':'ar-DZ';u.rate=.96;u.pitch=1;SR.speak(u);return true}catch{}}
-    toast('تعذر تشغيل الصوت.');return false;
+    const synth=window.speechSynthesis;
+    if(synth && typeof SpeechSynthesisUtterance!=='undefined'){
+      try{
+        synth.cancel();
+        const u=new SpeechSynthesisUtterance(clean);
+        u.lang=state.lang==='fr'?'fr-FR':state.lang==='en'?'en-US':'ar-DZ';
+        u.rate=.94; u.pitch=1; u.volume=1;
+        const voices=synth.getVoices();
+        const preferred=voices.find(v=>v.lang?.toLowerCase().startsWith(u.lang.slice(0,2)));
+        if(preferred)u.voice=preferred;
+        synth.speak(u); return true;
+      }catch{}
+    }
+    toast(t('ttsErr')); return false;
   }
 }
-$('#speakHero').onclick=()=>speakText(state.lang==='ar'?'مرحبًا بك في وجبتي الذكية. صوّر وجبتك وسأقدّر السعرات والماكروز وأضيفها إلى يومك.':'Welcome to Smart Meal. Scan a meal and I will estimate calories and macros.');
+$('#speakHero').onclick=()=>speakText(state.lang==='ar'?'مرحبًا بك في وجبتي الذكية. صوّر وجبتك وسأقدّر السعرات والماكروز وأضيفها إلى يومك.':state.lang==='fr'?"Bienvenue dans Smart Meal. Scannez votre repas et j'estimerai les calories et les macros.":'Welcome to Smart Meal. Scan a meal and I will estimate calories and macros.');
 $('#speakResult').onclick=()=>{const d=state.currentResult;if(!d)return; speakText(`${d.mealName||'Meal'}. ${d.description||''}. ${d.nutrition?.calories||0} calories. ${d.nutrition?.protein||0} grams protein.`)};
-let recorder=null,chunks=[];let stream=null;let recognition=null;let listening=false;
-function stopVoice(){
-  try{ if(recognition){ recognition.stop(); }}catch{}
-  try{ if(recorder && recorder.state==='recording') recorder.stop(); }catch{}
-  stream?.getTracks().forEach(x=>x.stop());
-  stream=null; listening=false;
-  $('#voiceBtn').classList.remove('recording');
-  $('#voiceLabel').textContent=t('voice');
-}
-function startWebSpeech(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR) return false;
-  recognition=new SR();
-  recognition.lang=state.lang==='fr'?'fr-FR':state.lang==='en'?'en-US':'ar-DZ';
-  recognition.interimResults=true; recognition.continuous=false; recognition.maxAlternatives=1;
-  recognition.onstart=()=>{listening=true;$('#voiceBtn').classList.add('recording');$('#voiceLabel').textContent=t('voiceRec');$('#voiceStatus').textContent=t('voiceRec')};
-  recognition.onresult=e=>{let finalText='';let interim='';for(let i=e.resultIndex;i<e.results.length;i++){const txt=e.results[i][0].transcript||'';if(e.results[i].isFinal)finalText+=txt;else interim+=txt} if(finalText){$('#mealText').value=$('#mealText').value?$('#mealText').value+' '+finalText:finalText;$('#voiceStatus').textContent=t('voiceDone');toast(finalText)} else if(interim){$('#voiceStatus').textContent=interim}};
-  recognition.onerror=e=>{console.warn('speech recognition',e.error);listening=false;$('#voiceBtn').classList.remove('recording');$('#voiceLabel').textContent=t('voice');if(e.error==='not-allowed'||e.error==='service-not-allowed')toast('اسمح بالميكروفون من إعدادات المتصفح ثم حاول مرة أخرى.');else if(e.error==='network')toast('تأكد من اتصال الإنترنت ثم حاول مرة أخرى.');else toast(t('voiceErr'));};
-  recognition.onend=()=>{listening=false;$('#voiceBtn').classList.remove('recording');$('#voiceLabel').textContent=t('voice')};
-  try{recognition.start();return true}catch(e){console.warn(e);recognition=null;return false}
-}
-async function fallbackRecordVoice(){
-  if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder)return false;
-  try{
-    stream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
-    const types=['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg','audio/mp4','audio/aac'];
-    const mime=types.find(x=>window.MediaRecorder.isTypeSupported?.(x));
-    if(!mime) throw Error('لا توجد صيغة تسجيل مدعومة على هذا المتصفح');
-    chunks=[];recorder=new MediaRecorder(stream,{mimeType:mime});
-    recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
-    recorder.onstart=()=>{$('#voiceBtn').classList.add('recording');$('#voiceLabel').textContent=t('voiceRec');$('#voiceStatus').textContent=t('voiceRec')};
-    recorder.onstop=async()=>{stream?.getTracks().forEach(x=>x.stop());stream=null;$('#voiceBtn').classList.remove('recording');$('#voiceLabel').textContent=t('voice');$('#voiceStatus').textContent=t('voiceWait');const blob=new Blob(chunks,{type:recorder.mimeType});const fr=new FileReader();fr.onloadend=async()=>{try{const r=await fetch('/api/voice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({audio:fr.result,language:state.lang})});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||'Voice unavailable');const tx=(d.text||'').trim();if(!tx)throw Error('No speech detected');$('#mealText').value=$('#mealText').value?$('#mealText').value+' '+tx:tx;$('#voiceStatus').textContent=t('voiceDone');toast(tx)}catch(e){console.error(e);$('#voiceStatus').textContent=t('voiceErr');toast(e.message||t('voiceErr'))}};fr.readAsDataURL(blob)};
-    recorder.start();setTimeout(()=>{if(recorder?.state==='recording')recorder.stop()},10000);return true;
-  }catch(e){console.error(e);stream?.getTracks().forEach(x=>x.stop());stream=null;return false}
-}
-async function recordVoice(){
-  if(listening || recorder?.state==='recording'){stopVoice();return}
-  const webSpeechStarted=startWebSpeech();
-  if(webSpeechStarted)return;
-  const fallback=await fallbackRecordVoice();
-  if(!fallback)toast(t('noVoice'));
-}
+let recorder=null,chunks=[];let stream=null;let audioContext=null;let processor=null;let audioChunks=[];let listening=false;
+function floatToWav(samples,sampleRate){const buffer=new ArrayBuffer(44+samples.length*2);const view=new DataView(buffer);const write=(o,x)=>{for(let i=0;i<x.length;i++)view.setUint8(o+i,x.charCodeAt(i))};write(0,'RIFF');view.setUint32(4,36+samples.length*2,true);write(8,'WAVE');write(12,'fmt ');view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);view.setUint32(24,sampleRate,true);view.setUint32(28,sampleRate*2,true);view.setUint16(32,2,true);view.setUint16(34,16,true);write(36,'data');view.setUint32(40,samples.length*2,true);let off=44;for(const v of samples){const x=Math.max(-1,Math.min(1,v));view.setInt16(off,x<0?x*0x8000:x*0x7fff,true);off+=2}return new Blob([view],{type:'audio/wav'})}
+function stopVoice(){try{processor?.disconnect()}catch{}try{audioContext?.close()}catch{}stream?.getTracks().forEach(x=>x.stop());processor=null;audioContext=null;stream=null;listening=false;$('#voiceBtn').classList.remove('recording');$('#voiceLabel').textContent=t('voice')}
+async function recordVoice(){if(listening){stopVoice();$('#voiceStatus').textContent=t('voiceReady');return}if(!window.isSecureContext){toast(t('noVoice'));return}if(!navigator.mediaDevices?.getUserMedia){toast(t('noVoice'));return}try{stream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:true,noiseSuppression:true,autoGainControl:true}});audioContext=new (window.AudioContext||window.webkitAudioContext)();await audioContext.resume();const source=audioContext.createMediaStreamSource(stream);processor=audioContext.createScriptProcessor(4096,1,1);audioChunks=[];processor.onaudioprocess=e=>{audioChunks.push(new Float32Array(e.inputBuffer.getChannelData(0)))};source.connect(processor);const mute=audioContext.createGain();mute.gain.value=0;processor.connect(mute);mute.connect(audioContext.destination);listening=true;$('#voiceBtn').classList.add('recording');$('#voiceLabel').textContent=t('voiceRec');$('#voiceStatus').textContent=t('voiceRec');setTimeout(()=>{if(listening)finishVoice()},10000)}catch(e){console.error(e);stopVoice();toast(t('noVoice'))}}
+async function finishVoice(){if(!listening)return;const rate=audioContext?.sampleRate||44100;const merged=new Float32Array(audioChunks.reduce((n,a)=>n+a.length,0));let off=0;for(const a of audioChunks){merged.set(a,off);off+=a.length}stopVoice();$('#voiceStatus').textContent=t('voiceWait');try{const blob=floatToWav(merged,rate);const reader=new FileReader();const data=await new Promise((resolve,reject)=>{reader.onloadend=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(blob)});const r=await fetch('/api/voice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({audio:data,language:state.lang})});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||t('voiceErr'));const tx=(d.text||'').trim();if(!tx)throw Error(t('voiceErr'));$('#mealText').value=$('#mealText').value?$('#mealText').value+' '+tx:tx;$('#voiceStatus').textContent=t('voiceDone');toast(tx)}catch(e){console.error(e);$('#voiceStatus').textContent=e.message||t('voiceErr');toast(e.message||t('voiceErr'))}}
 $('#voiceBtn').onclick=recordVoice;
-$('#clearBtn').onclick=()=>{state.history=[];save();renderHistory();toast('تم المسح')};
+
+$('#clearBtn').onclick=()=>{state.history=[];save();renderHistory();toast(t('clearDone'))};
 $('#healthBtn').onclick=async()=>{const out=[];out.push('online: '+navigator.onLine);out.push('microphone: '+!!navigator.mediaDevices?.getUserMedia);out.push('mediaRecorder: '+!!window.MediaRecorder);try{const r=await fetch('/api/health',{cache:'no-store'});const d=await r.json();out.push('AI backend: '+(d.aiConfigured?'configured':'missing key'));out.push('models: '+JSON.stringify(d.models));}catch(e){out.push('backend: error')}$('#diag').textContent=out.join('\n')};
 applyTheme();applyLang();renderHistory();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js?v=ultimate-20260812',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{})}
