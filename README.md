@@ -1,11 +1,12 @@
-# Smart Meal — Final Premium Web App
+# Smart Meal — FINAL v8 PREMIUM
 
-## Required Vercel environment variable
-- `GEMINI_API_KEY` (required for real AI image analysis, voice transcription, and Gemini TTS)
-- Optional `GEMINI_MODEL` (defaults to `gemini-3.6-flash`)
-- Optional `GEMINI_TTS_MODEL` (defaults to `gemini-3.1-flash-tts-preview`)
+Upload the contents of this folder to the root of the GitHub repository.
 
-## Voice behavior
-- Primary voice input: Web Speech API in supported browsers (works without an AI key).
-- Fallback voice input: recorded audio sent to `/api/voice` when AI is configured.
-- Text-to-speech: Gemini TTS when configured; browser speech fallback otherwise.
+## Vercel
+- Deploy the repository as a Vercel project.
+- Add `GEMINI_API_KEY` in Vercel Environment Variables for Production.
+- Redeploy after adding/changing the variable.
+- Do not put the API key in `index.html` or GitHub.
+
+## Health check
+Open `/api/health` on the deployed Vercel URL. It should return JSON with `backend: "ok"`.
