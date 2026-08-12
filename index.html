@@ -92,6 +92,36 @@
       return r.json();
     }
   };
+  window.SmartMealVoice = {
+    async transcribe(dataUrl, language='ar') {
+      const r = await fetch('/api/voice', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({audio:dataUrl,language})});
+      const data = await r.json().catch(()=>({}));
+      if (!r.ok) throw new Error(data.error || 'Voice unavailable');
+      return data;
+    },
+    speak(text, language='ar') {
+      if (!('speechSynthesis' in window)) return false;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(String(text || ''));
+      u.lang = language === 'ar' ? 'ar-SA' : language === 'fr' ? 'fr-FR' : 'en-US';
+      u.rate = 0.95; u.pitch = 1; u.volume = 1;
+      const chooseVoice = () => {
+        const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+        const lang2 = u.lang.slice(0,2).toLowerCase();
+        const preferred = voices.find(v => (v.lang||'').toLowerCase() === u.lang.toLowerCase())
+          || voices.find(v => (v.lang||'').toLowerCase().startsWith(lang2))
+          || voices.find(v => v.default);
+        if (preferred) u.voice = preferred;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+      };
+      if (window.speechSynthesis.getVoices && window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.addEventListener?.('voiceschanged', chooseVoice, {once:true});
+        setTimeout(chooseVoice, 250);
+      } else chooseVoice();
+      return true;
+    }
+  };
   window.SmartMealDiagnostics = {
     run() {
       const results=[];
@@ -102,93 +132,134 @@
   };
 })();
 </script>
-<style id="SMARTMEAL_V9_PREMIUM">
-:root{--primary:#10b981;--primary2:#059669;--bg:#f6f8fb;--surface:#fff;--surface2:#f1f5f9;--border:#e2e8f0;--text:#0f172a;--muted:#64748b}
-.dark{--bg:#070b10;--surface:#101720;--surface2:#17202b;--border:#263241;--text:#f8fafc;--muted:#94a3b8}
-body{background:linear-gradient(180deg,#f8fafc 0%,#eef7f3 100%)!important;min-height:100vh}
-.dark body{background:linear-gradient(180deg,#070b10 0%,#0b1514 100%)!important}
-#app{max-width:520px;margin:auto;min-height:100vh}
-.premium-card,[class*="rounded-2xl"]{border-radius:20px!important}
-button{min-height:44px}
-.num-en,.metric-number,[data-num]{font-family:Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums!important;direction:ltr!important;unicode-bidi:isolate!important}
-#scannerLoader{box-shadow:0 12px 40px rgba(15,23,42,.08)}
-#selectedImage{border-radius:18px;object-fit:cover;max-height:260px;width:100%}
-</style>
-<script id="SMARTMEAL_NUMBERS_V7">
-window.formatNumberEN=function(value,decimals){const n=Number(value);if(!Number.isFinite(n))return '0';return n.toLocaleString('en-US',{minimumFractionDigits:decimals||0,maximumFractionDigits:decimals||0,useGrouping:true});};
-window.toLatinDigits=function(v){return String(v).replace(/[٠-٩]/g,c=>String(c.charCodeAt(0)-0x0660)).replace(/[۰-۹]/g,c=>String(c.charCodeAt(0)-0x06F0));};
-</script>
 
-<style id="SMARTMEAL_V11_ELITE">
-:root{--bg:#f5f7f6;--surface:#ffffff;--surface2:#eef3f1;--border:#dce7e2;--text:#10221b;--muted:#6b7d75;--primary:#087f5b;--primary2:#0aa875;--accent:#d9f99d;}
-.dark{--bg:#07100d;--surface:#0d1915;--surface2:#13241e;--border:#20372e;--text:#f2fbf6;--muted:#91aaa0;--primary:#34d399;--primary2:#10b981;--accent:#365314}
-html,body{background:var(--bg)!important;color:var(--text)!important}
-body{background:radial-gradient(900px 380px at 50% -120px,rgba(16,185,129,.18),transparent 65%),var(--bg)!important}
-#app{max-width:560px!important;background:transparent!important}
-/* premium shell */
-#app>header{position:sticky!important;top:0!important;z-index:35!important;background:color-mix(in srgb,var(--bg) 86%,transparent)!important;backdrop-filter:blur(18px)!important;border-bottom:1px solid color-mix(in srgb,var(--border) 65%,transparent)!important}
-.premium-card,[class*="rounded-2xl"]{border-radius:24px!important;border:1px solid var(--border)!important;background:color-mix(in srgb,var(--surface) 96%,transparent)!important;box-shadow:0 14px 38px rgba(15,23,42,.06)!important}
-.dark .premium-card,.dark [class*="rounded-2xl"]{box-shadow:0 16px 42px rgba(0,0,0,.20)!important}
-/* hero / calorie cards */
-.bg-brand-500,.bg-brand-600,.bg-emerald-500,.bg-emerald-600{background:linear-gradient(135deg,var(--primary),var(--primary2))!important}
-.ring-p{box-shadow:0 0 0 10px color-mix(in srgb,var(--primary) 10%,transparent),0 18px 45px rgba(8,127,91,.20)}
-.metric-number{font-size:2.15rem!important;font-weight:900!important;letter-spacing:-.055em!important}
-.num-en,[data-num],.metric-number{font-family:Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums!important;direction:ltr!important;unicode-bidi:isolate!important}
-/* action cards */
-[data-action="nav"],button{touch-action:manipulation}
-button{border-radius:16px!important;font-weight:800!important}
-[data-action="trigger-camera"], [data-action="trigger-gallery"], [data-action="generate-recipes"]{min-height:54px!important;box-shadow:0 8px 22px rgba(8,127,91,.10)!important}
-[data-action="trigger-camera"]{background:linear-gradient(135deg,#087f5b,#10b981)!important;color:white!important}
-[data-action="trigger-gallery"]{background:var(--surface)!important;color:var(--text)!important;border:1px solid var(--border)!important}
-/* floating nav */
-#bottomNav{margin:0 10px 10px!important;border:1px solid var(--border)!important;border-radius:22px!important;box-shadow:0 18px 45px rgba(15,23,42,.12)!important;overflow:hidden!important;bottom:env(safe-area-inset-bottom)!important;background:color-mix(in srgb,var(--surface) 88%,transparent)!important;backdrop-filter:blur(20px)!important}
-#bottomNav .nav-btn{min-height:58px!important}
-#bottomNav .nav-btn span{font-size:10px!important}
-/* inputs */
-input,textarea,select{background:var(--surface)!important;color:var(--text)!important;border:1px solid var(--border)!important;border-radius:16px!important;min-height:50px}
-input:focus,textarea:focus,select:focus{outline:none!important;border-color:var(--primary)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--primary) 13%,transparent)!important}
-/* scanner */
-#previewBox{border:2px dashed color-mix(in srgb,var(--primary) 40%,var(--border))!important;background:linear-gradient(145deg,color-mix(in srgb,var(--primary) 7%,var(--surface)),var(--surface))!important}
-#previewImg,#selectedImage{border-radius:20px!important;max-height:300px!important;object-fit:cover!important}
-/* recipe cards */
-.recipe-card,.meal-card{transition:transform .2s ease,box-shadow .2s ease!important}
-.recipe-card:active,.meal-card:active{transform:scale(.985)!important}
-/* charts */
-.chart-bar{background:linear-gradient(180deg,var(--primary2),var(--primary))!important;border-radius:10px 10px 5px 5px!important}
-/* badges */
-[class*="rounded-full"]{letter-spacing:.01em}
-/* hide ugly default scrollbars */
-::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--primary) 35%,var(--border));border-radius:99px}
-/* subtle entrance */
-.animate-fade-in{animation:smV11In .34s cubic-bezier(.2,.8,.2,1)!important}@keyframes smV11In{from{opacity:0;transform:translateY(10px) scale(.99)}to{opacity:1;transform:none}}
-/* accessibility */
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+<style id="SMARTMEAL_ELITE_2026">
+  :root{--bg:#f5f7fb;--surface:#ffffff;--surface-2:#f0f3f7;--border:#e3e8ef;--text:#101828;--text-2:#667085;--text-3:#98a2b3;--primary:#0ea472;--primary-2:#07885f;}
+  .dark{--bg:#07100d;--surface:#101a16;--surface-2:#15211c;--border:#25322c;--text:#f4fbf7;--text-2:#a8b8af;--text-3:#718178;}
+  body{background:linear-gradient(180deg,#f8fafc 0%,var(--bg) 22%);}
+  .dark body{background:linear-gradient(180deg,#08120e 0%,var(--bg) 22%);}
+  #app{max-width:430px!important;}
+  #bottomNav{background:color-mix(in srgb,var(--surface) 88%,transparent);border:1px solid color-mix(in srgb,var(--border) 85%,transparent);border-radius:24px 24px 0 0;box-shadow:0 -12px 40px rgba(16,24,40,.08);}
+  .dark #bottomNav{box-shadow:0 -12px 40px rgba(0,0,0,.28);}
+  .premium-card{border-radius:28px!important;box-shadow:0 18px 50px -22px rgba(16,24,40,.22)!important;}
+  .section-title{letter-spacing:-.02em;}
+  .metric-number{letter-spacing:-.05em;}
+  .voice-recording{animation:voicePulse 1s infinite;transform:scale(1.02);}
+  @keyframes voicePulse{0%,100%{box-shadow:0 0 0 0 rgba(14,164,114,.12)}50%{box-shadow:0 0 0 10px rgba(14,164,114,.02)}}
+  #aiResultCard>div{box-shadow:0 30px 80px -30px rgba(16,24,40,.35)!important;}
+  button{transition:transform .15s ease,box-shadow .15s ease,background-color .15s ease;}
+  button:active{transform:scale(.98);}
+  input,select,textarea{border-radius:16px!important;}
 </style>
-<script id="SMARTMEAL_V11_VOICE">
-(()=>{
-  let currentRec=null;
-  window.SmartMealVoice={
-    supported:()=>!!(window.SpeechRecognition||window.webkitSpeechRecognition),
-    speak(text,lang='ar-DZ'){
-      if(!('speechSynthesis' in window)) return false;
-      speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(String(text));
-      u.lang=lang; u.rate=.95; u.pitch=1; u.volume=1;
-      speechSynthesis.speak(u); return true;
-    },
-    listen(onText,onDone,onError,lang='ar-DZ'){
-      const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-      if(!SR){onError?.('unsupported');return false}
-      try{
-        if(currentRec) currentRec.abort();
-        const r=new SR(); currentRec=r; r.lang=lang; r.continuous=false; r.interimResults=false; r.maxAlternatives=1;
-        r.onresult=e=>{const text=e?.results?.[0]?.[0]?.transcript?.trim();if(text)onText?.(text)};
-        r.onerror=e=>onError?.(e.error||'error');
-        r.onend=()=>{currentRec=null;onDone?.()}; r.start(); return true;
-      }catch(e){currentRec=null;onError?.('start-failed');return false}
-    }
-  };
-})();
-</script>
+
+
+<style id="SMARTMEAL_PREMIUM_PLUS">
+:root{
+  --hero:#0c8f68; --hero2:#0a6f54; --ink:#0d1b16; --muted:#6b7b74;
+  --card:rgba(255,255,255,.84); --line:rgba(16,24,40,.08);
+}
+.dark{
+  --hero:#0db07d; --hero2:#087357; --ink:#effaf5; --muted:#9bb1a7;
+  --card:rgba(16,26,22,.90); --line:rgba(255,255,255,.08);
+}
+body{
+  background:
+    radial-gradient(700px 260px at 100% -10%, rgba(14,164,114,.16), transparent 60%),
+    radial-gradient(500px 240px at 0% 0%, rgba(59,130,246,.08), transparent 65%),
+    var(--bg)!important;
+}
+#app{max-width:448px!important;margin:0 auto;}
+#app > div{scrollbar-width:none;}
+#app > div::-webkit-scrollbar{display:none;}
+.premium-card,.rounded-2xl,.rounded-3xl{
+  border-color:var(--line)!important;
+}
+.premium-card{
+  background:var(--card)!important;
+  box-shadow:0 20px 60px -34px rgba(15,23,42,.34)!important;
+}
+.section-title,h1,h2,h3{
+  letter-spacing:-.025em;
+}
+button{
+  min-height:44px;
+  -webkit-tap-highlight-color:transparent;
+}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+  outline:3px solid rgba(14,164,114,.18);
+  outline-offset:2px;
+}
+.num-en{
+  direction:ltr!important;
+  unicode-bidi:isolate;
+  font-family:Inter,system-ui,sans-serif!important;
+  font-variant-numeric:tabular-nums;
+}
+#bottomNav{
+  margin:0 auto env(safe-area-inset-bottom) auto!important;
+  max-width:448px;
+  border-radius:24px 24px 0 0!important;
+  backdrop-filter:blur(22px)!important;
+  -webkit-backdrop-filter:blur(22px)!important;
+}
+#bottomNav .nav-btn{
+  min-height:58px!important;
+  font-weight:800!important;
+}
+#toast{top:max(12px,env(safe-area-inset-top));}
+#modal{
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+#modal > div{
+  max-height:86vh;
+  overflow:auto;
+  border-radius:28px!important;
+}
+input,select,textarea{
+  min-height:48px;
+  background:var(--surface)!important;
+  border:1px solid var(--line)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.15);
+}
+img{background:var(--surface-2);}
+#previewBox img,#previewImg{
+  border-radius:22px!important;
+}
+.voice-recording{
+  background:linear-gradient(135deg,#0ea472,#0b7a5a)!important;
+  color:#fff!important;
+  box-shadow:0 0 0 8px rgba(14,164,114,.12),0 18px 40px -18px rgba(14,164,114,.65)!important;
+  animation:smPulse 1.15s ease-in-out infinite;
+}
+@keyframes smPulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.035)}
+}
+.ai-premium{
+  background:
+    radial-gradient(circle at 85% 15%,rgba(255,255,255,.16),transparent 35%),
+    linear-gradient(135deg,#0d8b67 0%,#0a5f49 100%);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 22px 60px -28px rgba(10,95,73,.75);
+}
+.scan-action-primary{
+  background:linear-gradient(135deg,#0ea472,#087c5b)!important;
+  color:#fff!important;
+  box-shadow:0 14px 34px -18px rgba(14,164,114,.65)!important;
+}
+.metric-chip{
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:10px 12px;
+}
+.metric-chip .value{font-size:20px;font-weight:900;line-height:1;}
+@media (max-width:380px){
+  #app{max-width:100%!important;}
+}
+</style>
 
 </head>
 <body class="min-h-screen">
@@ -206,7 +277,7 @@ input:focus,textarea:focus,select:focus{outline:none!important;border-color:var(
 <nav id="bottomNav" class="fixed bottom-0 inset-x-0 z-40 bg-[var(--surface)]/95 backdrop-blur-lg border-t border-[var(--border)] hidden safe-bottom">
   <div class="max-w-md mx-auto grid grid-cols-5 text-[10px]">
     <button data-action="nav" data-tab="home" class="nav-btn flex flex-col items-center justify-center py-2.5 transition">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v11h14V10"/></svg>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
       <span class="mt-0.5 font-bold" data-i18n="nav.home">الرئيسية</span>
     </button>
     <button data-action="nav" data-tab="scan" class="nav-btn flex flex-col items-center justify-center py-2.5 transition">
@@ -395,14 +466,14 @@ const Subscription = {
   },
   
   incrementScan(){
-    const used = Store.get('smp_scans_used_v7', 0) + 1;
-    Store.set('smp_scans_used_v7', used);
+    const used = Store.get('smp_scans_used_v5', 0) + 1;
+    Store.set('smp_scans_used_v5', used);
     this.scansUsed = used;
     return used;
   },
   
   resetScans(){
-    Store.set('smp_scans_used_v7', 0);
+    Store.set('smp_scans_used_v5', 0);
     this.scansUsed = 0;
   }
 };
@@ -499,7 +570,7 @@ function pickTip(key){
 const KEYS = {
   PROFILE:'smp_pro_v5', ONBOARD:'smp_on_v5', RECIPES:'smp_rec_v5',
   FAV:'smp_fav_v5', LOG:(d)=>`smp_log_${d}`, WEIGHT:'smp_wt_v5',
-  THEME:'smp_theme_v7', ACHV:'smp_achv_v7', SCANHIST:'smp_scan_v7', LANG:'smp_lang_v7',
+  THEME:'smp_theme_v5', ACHV:'smp_achv_v5', SCANHIST:'smp_scan_v5', LANG:'smp_lang_v5',
   ING:'smp_ing_v5',
 };
 let selectedImage = null;
@@ -1409,16 +1480,16 @@ function renderHome(){
     const k = d.toISOString().slice(0,10);
     const log = Store.get(KEYS.LOG(k),{items:[]});
     const cal = (log.items||[]).reduce((a,it)=>a+(it.macros?.cal||0),0);
-    const dayLabel = state.lang==='ar' ? d.toLocaleDateString('ar-DZ',{weekday:'short', numberingSystem:'latn'}) : state.lang==='fr' ? d.toLocaleDateString('fr-FR',{weekday:'short'}) : d.toLocaleDateString('en-US',{weekday:'short'});
+    const dayLabel = state.lang==='ar' ? d.toLocaleDateString('ar-EG',{weekday:'short', numberingSystem:'latn'}) : state.lang==='fr' ? d.toLocaleDateString('fr-FR',{weekday:'short'}) : d.toLocaleDateString('en-US',{weekday:'short'});
     weekData.push({day:dayLabel, cal, target:m.calories});
   }
   const maxCal = Math.max(m.calories, ...weekData.map(d=>d.cal), 1);
-  const todayDayLabel = state.lang==='ar' ? new Date().toLocaleDateString('ar-DZ',{weekday:'short', numberingSystem:'latn'}) : state.lang==='fr' ? new Date().toLocaleDateString('fr-FR',{weekday:'short'}) : new Date().toLocaleDateString('en-US',{weekday:'short'});
+  const todayDayLabel = state.lang==='ar' ? new Date().toLocaleDateString('ar-EG',{weekday:'short', numberingSystem:'latn'}) : state.lang==='fr' ? new Date().toLocaleDateString('fr-FR',{weekday:'short'}) : new Date().toLocaleDateString('en-US',{weekday:'short'});
 
   const achv = Store.get(KEYS.ACHV, []);
   const achvList = ACHIEVEMENTS.filter(a => achv.includes(a.id));
 
-  const dateLabel = state.lang==='ar' ? new Date().toLocaleDateString('ar-DZ',{weekday:'long',day:'numeric',month:'long', numberingSystem:'latn'}) : state.lang==='fr' ? new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}) : new Date().toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long'});
+  const dateLabel = state.lang==='ar' ? new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long', numberingSystem:'latn'}) : state.lang==='fr' ? new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}) : new Date().toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long'});
 
   $('#app').innerHTML = `<div class="animate-fade-in p-4 space-y-4">
     <div class="flex items-center justify-between pt-2">
@@ -1690,7 +1761,10 @@ function renderAIResult(result){
   card.innerHTML=`<div class="bg-[var(--surface)] border border-[var(--border)] rounded-3xl p-4 shadow-2xl">
     <div class="flex items-start justify-between gap-3">
       <div><p class="text-[10px] uppercase tracking-wider text-brand-600 font-extrabold">AI analysis</p><h3 class="text-lg font-black text-[var(--text)]">${escapeHtml(name)}</h3><p class="text-xs text-[var(--text-2)] mt-1">${escapeHtml(r.description||'')}</p></div>
-      <button data-action="close-ai-result" class="text-[var(--text-3)] p-1">✕</button>
+      <div class="flex items-center gap-1">
+        <button data-action="speak-ai-result" class="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-900/20 text-brand-700 dark:text-brand-300 font-bold">🔊</button>
+        <button data-action="close-ai-result" class="text-[var(--text-3)] p-1">✕</button>
+      </div>
     </div>
     ${!isFood?`<div class="mt-3 rounded-2xl bg-amber-50 dark:bg-amber-900/20 p-3 text-sm font-semibold">${state.lang==='ar'?'الصورة لا تبدو كوجبة واضحة. جرّب صورة أوضح.':state.lang==='fr'?'L’image ne semble pas être un repas clair. Essayez une photo plus nette.':'The image does not appear to be a clear meal. Try a clearer photo.'}</div>`:`
     <div class="grid grid-cols-4 gap-2 mt-4">
@@ -1839,7 +1913,7 @@ function renderSettings(){
   const theme = Store.get(KEYS.THEME, 'light');
   const lang = state.lang;
   const sub = Subscription.getCurrent();
-  const scansUsed = Store.get('smp_scans_used_v7', 0);
+  const scansUsed = Store.get('smp_scans_used_v5', 0);
   const scansLeft = sub.limit.scans === Infinity ? '∞' : Math.max(0, sub.limit.scans - scansUsed);
 
   $('#app').innerHTML = `<div class="animate-fade-in p-4 space-y-4">
@@ -1938,6 +2012,23 @@ function renderSettings(){
   </div>`;
 }
 
+
+/* ---------- Elite AI image analysis helper ---------- */
+async function analyzeMealImageWithAI(){
+  if (!selectedImage) throw new Error('No image selected');
+  const p = state.profile || {};
+  const consumed = (state.log?.items||[]).reduce((a,it)=>a+(it.macros?.cal||0),0);
+  const targetCalories = Math.max(800, Number(p.macros?.calories || 2000));
+  const result = await SmartMealAI.generate({
+    image: selectedImage,
+    language: state.lang,
+    goal: p.goal || 'maintain',
+    targetCalories,
+    text: ($('#ingInput')?.value || '').trim()
+  });
+  return result;
+}
+
 /* ---------- Router الرئيسي ---------- */
 function render(){
   loadState();
@@ -2030,17 +2121,107 @@ document.addEventListener('click', async (e) => {
   if (action === 'trigger-gallery'){ e.preventDefault(); $('#galleryInput').click(); return; }
   if (action === 'remove-image'){ selectedImage=null; $('#previewImg').src = ''; $('#previewBox').classList.add('hidden'); return; }
   if (action === 'voice-input'){
-    const b=document.querySelector('[data-action="voice-input"]');
-    const lang=state.lang==='ar'?'ar-DZ':state.lang==='fr'?'fr-FR':'en-US';
-    if(!window.SmartMealVoice?.supported()){ toast('الإدخال الصوتي غير مدعوم هنا. جرّب Chrome على Android.'); return; }
-    if(b){b.disabled=true;b.classList.add('opacity-60');}
-    toast(t('scan.speak'));
-    window.SmartMealVoice.listen(text=>{
-      const ing=$('#ingInput'); ing.value=ing.value?ing.value+', '+text:text; saveIngredients(ing.value);
-    },()=>{if(b){b.disabled=false;b.classList.remove('opacity-60');} toast(t('toasts.voiceDone'));},err=>{
-      if(b){b.disabled=false;b.classList.remove('opacity-60');}
-      toast(err==='not-allowed'?'اسمح للمتصفح باستخدام الميكروفون':err==='unsupported'?'الإدخال الصوتي غير مدعوم في هذا المتصفح':t('toasts.voiceError'));
-    },lang);
+    const button = target;
+    if (button.dataset.recording === '1') {
+      button.dataset.recording='0';
+      button.classList.remove('voice-recording');
+      return;
+    }
+    const langCode = state.lang === 'ar' ? 'ar' : state.lang === 'fr' ? 'fr' : 'en';
+    const applyTranscript = (text) => {
+      if (!text) { toast(t('toasts.voiceError')); return; }
+      const ing = $('#ingInput');
+      ing.value = ing.value ? ing.value + ', ' + text : text;
+      saveIngredients(ing.value);
+      toast(t('toasts.voiceDone'));
+    };
+
+    // Preferred path: record actual audio and transcribe on the server.
+    const canRecord = !!navigator.mediaDevices?.getUserMedia && !!window.MediaRecorder;
+    if (canRecord) {
+      navigator.mediaDevices.getUserMedia({audio:{channelCount:1, echoCancellation:true, noiseSuppression:true, autoGainControl:true}})
+      .then(async stream=>{
+        const candidates = [
+          'audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'
+        ];
+        const mime = candidates.find(m => window.MediaRecorder.isTypeSupported ? MediaRecorder.isTypeSupported(m) : false) || '';
+        let rec;
+        try { rec = mime ? new MediaRecorder(stream,{mimeType:mime}) : new MediaRecorder(stream); }
+        catch { rec = new MediaRecorder(stream); }
+        const chunks=[];
+        button.dataset.recording='1';
+        button.classList.add('voice-recording');
+        toast(t('scan.speak'));
+
+        rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+        rec.onerror = () => {
+          stream.getTracks().forEach(t=>t.stop());
+          button.dataset.recording='0'; button.classList.remove('voice-recording');
+          toast(t('toasts.voiceError'));
+        };
+        rec.onstop = async () => {
+          stream.getTracks().forEach(t=>t.stop());
+          button.dataset.recording='0'; button.classList.remove('voice-recording');
+          try {
+            const type = rec.mimeType || mime || 'audio/webm';
+            const blob = new Blob(chunks,{type});
+            if (!blob.size) throw new Error('Empty recording');
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+              try {
+                const result = await SmartMealVoice.transcribe(reader.result, langCode);
+                applyTranscript(result.text || result.transcript || '');
+              } catch (e) {
+                console.error(e);
+                toast(t('toasts.voiceError'));
+              }
+            };
+            reader.readAsDataURL(blob);
+          } catch(e) {
+            console.error(e);
+            toast(t('toasts.voiceError'));
+          }
+        };
+        rec.start();
+        window.setTimeout(()=>{ if (rec.state === 'recording') rec.stop(); }, 7000);
+      })
+      .catch(err=>{
+        console.error(err);
+        // Fallback to browser speech recognition only when recording permission/codec is unavailable.
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR){ toast(t('scan.noVoice')); return; }
+        try{
+          const r = new SR();
+          r.lang = state.lang === 'ar' ? 'ar-DZ' : state.lang === 'fr' ? 'fr-FR' : 'en-US';
+          r.continuous=false; r.interimResults=false; r.maxAlternatives=1;
+          r.onresult = ev => applyTranscript(ev.results?.[0]?.[0]?.transcript || '');
+          r.onerror = () => toast(t('toasts.voiceError'));
+          r.onend = () => { button.dataset.recording='0'; button.classList.remove('voice-recording'); };
+          button.dataset.recording='1'; button.classList.add('voice-recording');
+          r.start(); toast(t('scan.speak'));
+        } catch(e){
+          console.error(e);
+          button.dataset.recording='0'; button.classList.remove('voice-recording');
+          toast(t('toasts.voiceError'));
+        }
+      });
+    } else {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR){ toast(t('scan.noVoice')); return; }
+      try{
+        const r = new SR();
+        r.lang = state.lang === 'ar' ? 'ar-DZ' : state.lang === 'fr' ? 'fr-FR' : 'en-US';
+        r.continuous=false; r.interimResults=false; r.maxAlternatives=1;
+        r.onresult = ev => applyTranscript(ev.results?.[0]?.[0]?.transcript || '');
+        r.onerror = () => toast(t('toasts.voiceError'));
+        r.onend = () => { button.dataset.recording='0'; button.classList.remove('voice-recording'); };
+        button.dataset.recording='1'; button.classList.add('voice-recording');
+        r.start(); toast(t('scan.speak'));
+      } catch(e){
+        console.error(e);
+        toast(t('toasts.voiceError'));
+      }
+    }
     return;
   }
   if (action === 'quick-add-ing'){
@@ -2055,7 +2236,7 @@ document.addEventListener('click', async (e) => {
     const text = $('#ingInput').value.trim();
     if (!text && !selectedImage){ toast(t('toasts.noIngredients')); return; }
     const sub = Subscription.getCurrent();
-    const scansUsed = Store.get('smp_scans_used_v7', 0);
+    const scansUsed = Store.get('smp_scans_used_v5', 0);
     if (scansUsed >= sub.limit.scans){
       openPricingModal();
       toast(state.lang==='ar'?'⚠️ وصلت لحد المسحات في الباقة المجانية':state.lang==='fr'?'⚠️ Limite de scans atteinte':'⚠️ Scan limit reached');
@@ -2093,6 +2274,13 @@ document.addEventListener('click', async (e) => {
     return;
   }
   if (action === 'close-ai-result'){ document.getElementById('aiResultCard')?.remove(); return; }
+  if (action === 'speak-ai-result'){
+    if (!lastAIResult) return;
+    const n=lastAIResult.nutrition||{};
+    const text = state.lang==='ar' ? `${lastAIResult.mealName||'الوجبة'}، حوالي ${fmt(n.calories||0)} سعرة حرارية، ${fmt(n.protein||0)} غرام بروتين، ${fmt(n.carbs||0)} غرام كربوهيدرات، و${fmt(n.fat||0)} غرام دهون.` : state.lang==='fr' ? `${lastAIResult.mealName||'Repas'}, environ ${fmt(n.calories||0)} calories, ${fmt(n.protein||0)} grammes de protéines, ${fmt(n.carbs||0)} grammes de glucides et ${fmt(n.fat||0)} grammes de lipides.` : `${lastAIResult.mealName||'Meal'}, about ${fmt(n.calories||0)} calories, ${fmt(n.protein||0)} grams of protein, ${fmt(n.carbs||0)} grams of carbs, and ${fmt(n.fat||0)} grams of fat.`;
+    if (!SmartMealVoice.speak(text, state.lang)) toast(t('toasts.voiceError'));
+    return;
+  }
   if (action === 'add-ai-meal'){
     if (!lastAIResult?.isFood) return;
     const n=lastAIResult.nutrition||{};
@@ -2248,7 +2436,7 @@ function openAddMealModal(){
 
 function openPricingModal(){
   const sub = Subscription.getCurrent();
-  const scansLeft = sub.limit.scans === Infinity ? '∞' : Math.max(0, sub.limit.scans - (Store.get('smp_scans_used_v7', 0)));
+  const scansLeft = sub.limit.scans === Infinity ? '∞' : Math.max(0, sub.limit.scans - (Store.get('smp_scans_used_v5', 0)));
   openModal(`<div class="flex items-center justify-between mb-5">
     <h2 class="text-xl font-black text-[var(--text)]">${state.lang==='ar'?'اختر باقتك':state.lang==='fr'?'Choisissez votre plan':'Choose Your Plan'}</h2>
     <button data-action="close-modal" class="text-[var(--text-2)] p-1"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -2402,78 +2590,3 @@ if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoa
 </script>
 </body>
 </html>
-<style id="SMARTMEAL_V11_ELITE_UI">
-/* Smart Meal v11 — premium mobile product UI */
-:root{
-  --bg:#f5f7f8;--surface:#ffffff;--surface2:#f0f4f3;--border:#dfe8e4;
-  --text:#0b1713;--muted:#65756e;--primary:#00a878;--primary2:#007f5f;
-  --shadow:0 14px 45px rgba(15,35,28,.07);--shadow2:0 8px 24px rgba(15,35,28,.08)
-}
-.dark{--bg:#07100d;--surface:#0d1714;--surface2:#14211d;--border:#24362f;--text:#f2faf6;--muted:#94aaa1;--shadow:0 18px 50px rgba(0,0,0,.28);--shadow2:0 10px 28px rgba(0,0,0,.22)}
-html,body{background:var(--bg)!important;color:var(--text)!important}
-body{font-family:'Cairo','Inter',system-ui,sans-serif;letter-spacing:-.01em}
-#app{max-width:560px!important;background:transparent!important;padding-bottom:calc(92px + env(safe-area-inset-bottom))!important}
-#app>div{padding:18px 16px 26px!important;gap:18px!important}
-/* premium page rhythm */
-#app h1{letter-spacing:-.035em;font-size:clamp(1.35rem,5vw,1.8rem)!important}
-#app h2{letter-spacing:-.025em}
-#app .shadow-card{box-shadow:var(--shadow2)!important}
-#app [class*="border-[var(--border)]"]{border-color:var(--border)!important}
-#app [class*="rounded-2xl"]{border-radius:22px!important}
-#app [class*="rounded-3xl"]{border-radius:28px!important}
-/* header */
-#app>div>div:first-child{padding-top:4px!important}
-#app>div>div:first-child h1{font-weight:900!important}
-#app>div>div:first-child p{color:var(--muted)!important}
-/* calorie hero */
-#app .pro-glow{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.16)!important;box-shadow:0 22px 55px -22px rgba(0,168,120,.5)!important;background:linear-gradient(135deg,#008f6a 0%,#00b486 48%,#006e55 100%)!important}
-#app .pro-glow:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.09);top:-80px;left:-70px;filter:blur(1px)}
-#app .pro-glow .metric-number{font-size:2.65rem!important;line-height:.95!important;letter-spacing:-.06em!important}
-#app .ring-p{box-shadow:0 0 0 1px rgba(255,255,255,.12),inset 0 0 25px rgba(0,0,0,.06)}
-/* macro cards */
-#app .grid.grid-cols-3>div{min-height:96px;display:flex;flex-direction:column;justify-content:center;border:1px solid var(--border);background:linear-gradient(180deg,var(--surface),var(--surface2))!important;box-shadow:none!important}
-#app .grid.grid-cols-3>div .text-base{font-size:1.05rem!important}
-/* quick actions */
-#app button[data-action="go-tab"][data-tab="scan"],#app button[data-action="go-tab"][data-tab="recipes"],#app button[data-action="open-add-meal"]{min-height:92px;border-radius:22px!important;box-shadow:var(--shadow2)!important;position:relative;overflow:hidden}
-#app button[data-action="go-tab"][data-tab="scan"]{background:linear-gradient(135deg,#087f62,#00b889)!important}
-#app button[data-action="go-tab"][data-tab="recipes"]{background:linear-gradient(135deg,#5d4de5,#8b78ff)!important}
-#app button[data-action="open-add-meal"]{background:linear-gradient(135deg,#d97706,#f59e0b)!important}
-#app button[data-action="go-tab"]>div,#app button[data-action="open-add-meal"]>div{font-size:1.7rem!important}
-/* charts */
-#app .chart-bar{border-radius:10px 10px 5px 5px!important}
-/* scanner hero */
-#app .bg-gradient-to-br.from-blue-500.to-purple-600{background:linear-gradient(135deg,#0f766e,#2563eb 58%,#6d28d9)!important;box-shadow:0 18px 45px -24px rgba(37,99,235,.65)!important}
-#app input[type=file]+*{border-radius:24px}
-#app [data-action="trigger-camera"]{background:linear-gradient(135deg,#00a878,#007f5f)!important;box-shadow:0 10px 25px -15px rgba(0,168,120,.8)}
-#app [data-action="trigger-gallery"]{background:var(--surface)!important;border:1px solid var(--primary)!important;color:var(--primary2)!important}
-#app [data-action="generate"]{min-height:54px!important;border-radius:18px!important;background:linear-gradient(135deg,#111827,#24303d)!important;box-shadow:0 12px 28px -18px rgba(15,23,42,.8)}
-.dark #app [data-action="generate"]{background:linear-gradient(135deg,#f8fafc,#dce7e2)!important;color:#07100d!important}
-/* bottom nav = floating dock */
-#bottomNav{background:transparent!important;border:0!important;bottom:10px!important;padding:0 10px!important;pointer-events:none}
-#bottomNav>div{max-width:540px!important;margin:auto;background:rgba(255,255,255,.88);border:1px solid rgba(223,232,228,.95);box-shadow:0 18px 45px rgba(15,35,28,.14);border-radius:25px;padding:5px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);pointer-events:auto}
-.dark #bottomNav>div{background:rgba(13,23,20,.9);border-color:#263c33;box-shadow:0 18px 45px rgba(0,0,0,.35)}
-#bottomNav .nav-btn{border-radius:19px!important;min-height:54px!important;gap:1px}
-#bottomNav .nav-btn:hover{background:var(--surface2)}
-#bottomNav .nav-btn[data-tab="scan"]{color:#fff!important;background:linear-gradient(135deg,#00a878,#007f5f);transform:translateY(-9px);box-shadow:0 12px 24px -12px rgba(0,168,120,.75);border:4px solid var(--bg)}
-#bottomNav .nav-btn[data-tab="scan"] span{color:#fff!important}
-#bottomNav svg{width:20px!important;height:20px!important}
-/* modal */
-#modal{background:rgba(3,12,9,.58)!important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-#modalCard{box-shadow:0 25px 80px rgba(0,0,0,.28)!important;border:1px solid var(--border)}
-/* inputs */
-#app input,#app textarea,#app select{border-radius:17px!important;border-color:var(--border)!important;background:var(--surface2)!important;min-height:48px}
-#app textarea{min-height:100px}
-#app input:focus,#app textarea:focus,#app select:focus{box-shadow:0 0 0 3px rgba(0,168,120,.12)!important;border-color:var(--primary)!important}
-/* cards and empty states */
-#app .premium-card{background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(248,251,250,.96))!important;box-shadow:var(--shadow)!important}
-.dark #app .premium-card{background:linear-gradient(180deg,rgba(13,23,20,.98),rgba(15,27,23,.98))!important}
-/* subtle separators */
-.section-title:after{content:"";display:block;width:28px;height:3px;border-radius:3px;background:var(--primary);margin-top:7px}
-/* accessibility */
-button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid rgba(0,168,120,.3);outline-offset:2px}
-@media(min-width:700px){#app{max-width:620px!important}#app>div{padding:24px 20px 32px!important}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
-</style>
-<script id="SMARTMEAL_V11_META">
-document.title='وجبتي الذكية | Smart Meal — AI Nutrition';
-</script>

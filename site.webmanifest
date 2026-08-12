@@ -1,6 +1,6 @@
 {
   "id": "./",
-  "name": "وجبتي الذكية - Smart Meal",
+  "name": "وجبتي الذكية — Smart Meal",
   "short_name": "Smart Meal",
   "description": "تحليل الوجبات بالذكاء الاصطناعي ومتابعة السعرات والماكروز",
   "start_url": "./",
@@ -24,5 +24,6 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "version": "2.0.0"
 }
