@@ -1,9 +1,1 @@
-{
-  "name": "smartmeal",
-  "private": true,
-  "version": "5.0.0",
-  "scripts": {
-    "check": "node --check index.html",
-    "ai-check": "node --check api/ai.js"
-  }
-}
+{"name":"smartmeal","private":true,"version":"6.0.0","scripts":{"check:api":"node --check api/ai.js && node --check api/voice.js && node --check api/tts.js"}}

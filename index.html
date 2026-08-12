@@ -99,27 +99,38 @@
       if (!r.ok) throw new Error(data.error || 'Voice unavailable');
       return data;
     },
-    speak(text, language='ar') {
+    async speak(text, language='ar') {
+      const clean = String(text || '').trim();
+      if (!clean) return false;
+      // Primary: server-generated Gemini TTS. This avoids device-specific missing-voice errors.
+      try {
+        const r = await fetch('/api/tts', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({text:clean.slice(0,5000), language})
+        });
+        const data = await r.json().catch(()=>({}));
+        if (r.ok && data.audio) {
+          const audio = new Audio(data.audio);
+          audio.preload = 'auto';
+          await audio.play();
+          return true;
+        }
+      } catch (e) { console.warn('Gemini TTS unavailable, using device TTS', e); }
+      // Fallback: native Android/browser TTS when available.
       if (!('speechSynthesis' in window)) return false;
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(String(text || ''));
-      u.lang = language === 'ar' ? 'ar-SA' : language === 'fr' ? 'fr-FR' : 'en-US';
-      u.rate = 0.95; u.pitch = 1; u.volume = 1;
-      const chooseVoice = () => {
+      try {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(clean);
+        u.lang = language === 'ar' ? 'ar-SA' : language === 'fr' ? 'fr-FR' : 'en-US';
+        u.rate = 0.95; u.pitch = 1; u.volume = 1;
         const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
         const lang2 = u.lang.slice(0,2).toLowerCase();
         const preferred = voices.find(v => (v.lang||'').toLowerCase() === u.lang.toLowerCase())
-          || voices.find(v => (v.lang||'').toLowerCase().startsWith(lang2))
-          || voices.find(v => v.default);
+          || voices.find(v => (v.lang||'').toLowerCase().startsWith(lang2));
         if (preferred) u.voice = preferred;
-        window.speechSynthesis.cancel();
         window.speechSynthesis.speak(u);
-      };
-      if (window.speechSynthesis.getVoices && window.speechSynthesis.getVoices().length === 0) {
-        window.speechSynthesis.addEventListener?.('voiceschanged', chooseVoice, {once:true});
-        setTimeout(chooseVoice, 250);
-      } else chooseVoice();
-      return true;
+        return true;
+      } catch { return false; }
     }
   };
   window.SmartMealDiagnostics = {
@@ -261,6 +272,24 @@ img{background:var(--surface-2);}
 }
 </style>
 
+<style id="SMARTMEAL_FINAL_2026">
+  :root{--accent:#10b981;--accent-2:#0f9f6e;--ink:#0f172a;}
+  body{background:radial-gradient(900px 420px at 50% -120px,rgba(16,185,129,.15),transparent 65%),linear-gradient(180deg,var(--bg),var(--bg));}
+  .dark body{background:radial-gradient(900px 420px at 50% -120px,rgba(16,185,129,.12),transparent 65%),linear-gradient(180deg,var(--bg),var(--bg));}
+  #app{padding-left:14px;padding-right:14px;}
+  #app>div{scroll-behavior:smooth;}
+  .premium-card{border:1px solid color-mix(in srgb,var(--primary) 12%,var(--border));}
+  .final-hero{position:relative;overflow:hidden;border-radius:32px;background:linear-gradient(135deg,#047857 0%,#0ea472 48%,#34d399 100%);box-shadow:0 24px 60px -24px rgba(4,120,87,.55);}
+  .final-hero:before{content:"";position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.13);top:-90px;right:-40px;}
+  .final-hero:after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.08);bottom:-70px;left:-30px;}
+  .final-glass{background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid color-mix(in srgb,var(--border) 82%,var(--primary) 18%);}
+  .final-chip{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.12);backdrop-filter:blur(8px);}
+  .final-metric{border-radius:22px;background:linear-gradient(180deg,color-mix(in srgb,var(--surface) 96%,transparent),var(--surface));border:1px solid var(--border);box-shadow:0 12px 30px -20px rgba(16,24,40,.4);}
+  .voice-recording{box-shadow:0 0 0 8px rgba(16,185,129,.12),0 0 0 16px rgba(16,185,129,.05)!important;}
+  .final-status{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:50%;transform:translateX(-50%);z-index:100;display:none;padding:9px 14px;border-radius:999px;background:rgba(15,23,42,.92);color:white;font:700 12px Inter,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.2);}
+  .final-status.show{display:block;animation:finalDrop .25s ease-out;}
+  @keyframes finalDrop{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}
+</style>
 </head>
 <body class="min-h-screen">
 
@@ -323,16 +352,24 @@ const fmt1 = n => {
 };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const todayKey = () => new Date().toISOString().slice(0,10);
+window.SmartMealFinal = { version:'2026.08.12-final', status(message){
+  let el=document.getElementById('finalStatus');
+  if(!el){el=document.createElement('div');el.id='finalStatus';el.className='final-status';document.body.appendChild(el);}
+  el.textContent=message; el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),2200);
+}};
 
 /* ---------- i18n: 3 لغات ---------- */
 /* ============================================================
    PWA + IndexedDB + Subscriptions + AI Enhanced
    ============================================================ */
 
-/* ---------- PWA Registration ---------- */
+/* ---------- PWA Registration / update-safe rollout ---------- */
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW error', err));
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('./sw.js?v=20260812-final', {updateViaCache:'none'});
+      reg.update().catch(()=>{});
+    } catch (err) { console.log('SW error', err); }
   });
 }
 
@@ -2122,108 +2159,60 @@ document.addEventListener('click', async (e) => {
   if (action === 'remove-image'){ selectedImage=null; $('#previewImg').src = ''; $('#previewBox').classList.add('hidden'); return; }
   if (action === 'voice-input'){
     const button = target;
-    if (button.dataset.recording === '1') {
-      button.dataset.recording='0';
-      button.classList.remove('voice-recording');
-      return;
-    }
+    if (button.dataset.recording === '1') return;
     const langCode = state.lang === 'ar' ? 'ar' : state.lang === 'fr' ? 'fr' : 'en';
     const applyTranscript = (text) => {
-      if (!text) { toast(t('toasts.voiceError')); return; }
+      const value = String(text || '').trim();
+      if (!value) { toast(t('toasts.voiceError')); return; }
       const ing = $('#ingInput');
-      ing.value = ing.value ? ing.value + ', ' + text : text;
+      ing.value = ing.value ? ing.value + ', ' + value : value;
       saveIngredients(ing.value);
       toast(t('toasts.voiceDone'));
     };
-
-    // Preferred path: record actual audio and transcribe on the server.
-    const canRecord = !!navigator.mediaDevices?.getUserMedia && !!window.MediaRecorder;
-    if (canRecord) {
-      navigator.mediaDevices.getUserMedia({audio:{channelCount:1, echoCancellation:true, noiseSuppression:true, autoGainControl:true}})
-      .then(async stream=>{
-        const candidates = [
-          'audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'
-        ];
-        const mime = candidates.find(m => window.MediaRecorder.isTypeSupported ? MediaRecorder.isTypeSupported(m) : false) || '';
-        let rec;
-        try { rec = mime ? new MediaRecorder(stream,{mimeType:mime}) : new MediaRecorder(stream); }
-        catch { rec = new MediaRecorder(stream); }
-        const chunks=[];
-        button.dataset.recording='1';
-        button.classList.add('voice-recording');
-        toast(t('scan.speak'));
-
-        rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
-        rec.onerror = () => {
-          stream.getTracks().forEach(t=>t.stop());
-          button.dataset.recording='0'; button.classList.remove('voice-recording');
-          toast(t('toasts.voiceError'));
-        };
-        rec.onstop = async () => {
-          stream.getTracks().forEach(t=>t.stop());
-          button.dataset.recording='0'; button.classList.remove('voice-recording');
-          try {
-            const type = rec.mimeType || mime || 'audio/webm';
-            const blob = new Blob(chunks,{type});
-            if (!blob.size) throw new Error('Empty recording');
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-              try {
-                const result = await SmartMealVoice.transcribe(reader.result, langCode);
-                applyTranscript(result.text || result.transcript || '');
-              } catch (e) {
-                console.error(e);
-                toast(t('toasts.voiceError'));
-              }
-            };
-            reader.readAsDataURL(blob);
-          } catch(e) {
-            console.error(e);
-            toast(t('toasts.voiceError'));
-          }
-        };
-        rec.start();
-        window.setTimeout(()=>{ if (rec.state === 'recording') rec.stop(); }, 7000);
-      })
-      .catch(err=>{
-        console.error(err);
-        // Fallback to browser speech recognition only when recording permission/codec is unavailable.
-        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SR){ toast(t('scan.noVoice')); return; }
-        try{
-          const r = new SR();
-          r.lang = state.lang === 'ar' ? 'ar-DZ' : state.lang === 'fr' ? 'fr-FR' : 'en-US';
-          r.continuous=false; r.interimResults=false; r.maxAlternatives=1;
-          r.onresult = ev => applyTranscript(ev.results?.[0]?.[0]?.transcript || '');
-          r.onerror = () => toast(t('toasts.voiceError'));
-          r.onend = () => { button.dataset.recording='0'; button.classList.remove('voice-recording'); };
-          button.dataset.recording='1'; button.classList.add('voice-recording');
-          r.start(); toast(t('scan.speak'));
-        } catch(e){
-          console.error(e);
-          button.dataset.recording='0'; button.classList.remove('voice-recording');
-          toast(t('toasts.voiceError'));
-        }
-      });
-    } else {
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR){ toast(t('scan.noVoice')); return; }
-      try{
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    // Primary on Android Chrome: native speech recognition is faster and avoids unsupported recorder codecs.
+    if (SR) {
+      try {
         const r = new SR();
         r.lang = state.lang === 'ar' ? 'ar-DZ' : state.lang === 'fr' ? 'fr-FR' : 'en-US';
-        r.continuous=false; r.interimResults=false; r.maxAlternatives=1;
-        r.onresult = ev => applyTranscript(ev.results?.[0]?.[0]?.transcript || '');
-        r.onerror = () => toast(t('toasts.voiceError'));
-        r.onend = () => { button.dataset.recording='0'; button.classList.remove('voice-recording'); };
+        r.continuous = false; r.interimResults = false; r.maxAlternatives = 1;
+        let gotResult = false;
         button.dataset.recording='1'; button.classList.add('voice-recording');
-        r.start(); toast(t('scan.speak'));
-      } catch(e){
-        console.error(e);
-        toast(t('toasts.voiceError'));
-      }
+        toast(t('scan.speak'));
+        r.onresult = ev => { gotResult=true; applyTranscript(ev.results?.[0]?.[0]?.transcript || ''); };
+        r.onerror = async ev => {
+          console.warn('SpeechRecognition error', ev.error);
+          if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') toast(t('toasts.voiceError'));
+          else if (!gotResult) await startRecordedVoiceFallback(button, langCode, applyTranscript);
+        };
+        r.onend = () => { button.dataset.recording='0'; button.classList.remove('voice-recording'); };
+        r.start();
+        return;
+      } catch(e){ console.warn('SpeechRecognition start failed',e); }
     }
+    await startRecordedVoiceFallback(button, langCode, applyTranscript);
     return;
   }
+
+async function startRecordedVoiceFallback(button, langCode, applyTranscript){
+  const canRecord=!!navigator.mediaDevices?.getUserMedia && !!window.MediaRecorder;
+  if(!canRecord){ toast(t('scan.noVoice')); return; }
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+    const candidates=['audio/ogg;codecs=opus','audio/ogg','audio/mp4','audio/aac'];
+    const mime=candidates.find(m=>MediaRecorder.isTypeSupported?.(m))||'';
+    if(!mime){stream.getTracks().forEach(x=>x.stop());toast(t('toasts.voiceError'));return;}
+    const rec=new MediaRecorder(stream,{mimeType:mime}); const chunks=[];
+    button.dataset.recording='1'; button.classList.add('voice-recording'); toast(t('scan.speak'));
+    rec.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
+    rec.onerror=()=>{stream.getTracks().forEach(x=>x.stop());button.dataset.recording='0';button.classList.remove('voice-recording');toast(t('toasts.voiceError'));};
+    rec.onstop=async()=>{
+      stream.getTracks().forEach(x=>x.stop());button.dataset.recording='0';button.classList.remove('voice-recording');
+      try{const blob=new Blob(chunks,{type:rec.mimeType});if(!blob.size)throw Error('Empty recording');const reader=new FileReader();reader.onloadend=async()=>{try{const out=await SmartMealVoice.transcribe(reader.result,langCode);applyTranscript(out.text||'')}catch(e){console.error(e);toast(t('toasts.voiceError'))}};reader.readAsDataURL(blob)}catch(e){console.error(e);toast(t('toasts.voiceError'))}
+    };
+    rec.start(); setTimeout(()=>{if(rec.state==='recording')rec.stop()},6500);
+  }catch(e){console.error(e);button.dataset.recording='0';button.classList.remove('voice-recording');toast(t('toasts.voiceError'));}
+}
   if (action === 'quick-add-ing'){
     const ing = $('#ingInput');
     const cur = ing.value.trim();
@@ -2278,7 +2267,7 @@ document.addEventListener('click', async (e) => {
     if (!lastAIResult) return;
     const n=lastAIResult.nutrition||{};
     const text = state.lang==='ar' ? `${lastAIResult.mealName||'الوجبة'}، حوالي ${fmt(n.calories||0)} سعرة حرارية، ${fmt(n.protein||0)} غرام بروتين، ${fmt(n.carbs||0)} غرام كربوهيدرات، و${fmt(n.fat||0)} غرام دهون.` : state.lang==='fr' ? `${lastAIResult.mealName||'Repas'}, environ ${fmt(n.calories||0)} calories, ${fmt(n.protein||0)} grammes de protéines, ${fmt(n.carbs||0)} grammes de glucides et ${fmt(n.fat||0)} grammes de lipides.` : `${lastAIResult.mealName||'Meal'}, about ${fmt(n.calories||0)} calories, ${fmt(n.protein||0)} grams of protein, ${fmt(n.carbs||0)} grams of carbs, and ${fmt(n.fat||0)} grams of fat.`;
-    if (!SmartMealVoice.speak(text, state.lang)) toast(t('toasts.voiceError'));
+    const ok = await SmartMealVoice.speak(text, state.lang); if (!ok) toast(t('toasts.voiceError'));
     return;
   }
   if (action === 'add-ai-meal'){
