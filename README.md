@@ -1,13 +1,23 @@
-# SmartMeal PRO v23
+# Smart Meal PRO — final build
 
-Production-oriented PWA starter for SmartMeal with recipes, AI meal analysis, meal planning, shopping list, favorites and multilingual UI.
+A production-oriented PWA with:
+- 100 curated, recognizable recipes
+- ingredient quantities matched to each recipe method
+- Arabic / English / French UI
+- recipe search + category filters
+- favorites, history, shopping list and export
+- AI meal analysis through `/api/ai`
+- weekly planner through `/api/coach`
+- backend health check through `/api/health`
+- no voice feature / no microphone dependency
 
-## Required Vercel environment variable
-`GEMINI_API_KEY`
+## Vercel
+1. Import this project into Vercel.
+2. Add `GEMINI_API_KEY` in Project Settings → Environment Variables.
+3. Optional: `GEMINI_MODEL=gemini-3.6-flash`.
+4. Redeploy after changing environment variables.
 
-Optional: `GEMINI_MODEL` (defaults to `gemini-3.6-flash`).
+The API key must stay server-side in Vercel. Never put it in `index.html` or client-side JavaScript.
 
-## API
-- GET `/api/health`
-- POST `/api/ai`
-- POST `/api/coach`
+## Important
+Nutrition values in the recipe library are estimates, not medical advice.
