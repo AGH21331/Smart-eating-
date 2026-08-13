@@ -1,6 +1,8 @@
 {
-  "cleanUrls": true,
-  "headers": [
-    {"source":"/(.*)","headers":[{"key":"Cache-Control","value":"no-store, max-age=0"}]}
-  ]
+  "version": 2,
+  "functions": {
+    "api/ai.js": { "maxDuration": 60 },
+    "api/voice.js": { "maxDuration": 60 },
+    "api/health.js": { "maxDuration": 10 }
+  }
 }
