@@ -1,11 +1,8 @@
 {
-  "name": "smartmeal",
+  "name": "smartmeal-final",
   "private": true,
-  "version": "13.1.0",
+  "version": "14.0.0",
   "engines": {
     "node": ">=20"
-  },
-  "scripts": {
-    "check": "node --check api/ai.js && node --check api/voice.js && node --check api/health.js"
   }
 }
