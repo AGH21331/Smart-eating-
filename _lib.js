@@ -1,15 +1,9 @@
-const MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
-const TTS_MODEL = process.env.GEMINI_TTS_MODEL || 'gemini-3.1-flash-tts-preview';
+const MODEL=process.env.GEMINI_MODEL||'gemini-3.6-flash';
+const BASE='https://generativelanguage.googleapis.com/v1beta/models/';
 function json(res,status,body){res.statusCode=status;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.end(JSON.stringify(body));}
-async function parseBody(req){if(req.body&&typeof req.body==='object')return req.body;let raw='';for await(const c of req)raw+=c;try{return JSON.parse(raw||'{}')}catch(e){throw Object.assign(new Error('Invalid JSON body'),{status:400,code:'INVALID_JSON'})}}
-function requireKey(){const key=process.env.GEMINI_API_KEY;if(!key)throw Object.assign(new Error('GEMINI_API_KEY is not configured in Vercel.'),{status:503,code:'AI_NOT_CONFIGURED'});return key}
-async function geminiGenerate({model,inputParts,responseSchema,responseMimeType='application/json'}){
- const key=requireKey();
- const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:inputParts}],generationConfig:responseSchema?{responseMimeType,responseSchema}:{}})});
- const raw=await r.text();let d=null;try{d=JSON.parse(raw)}catch{}
- if(!r.ok)throw Object.assign(new Error(d?.error?.message||`Gemini HTTP ${r.status}`),{status:r.status,code:'GEMINI_ERROR'});
- const text=d?.candidates?.[0]?.content?.parts?.filter(p=>typeof p.text==='string').map(p=>p.text).join('\n').trim()||'';
- return {raw:d,text};
-}
-function dataUrl(v){const m=String(v||'').match(/^data:([^;]+);base64,(.+)$/s);return m?{mime:m[1],data:m[2]}:null}
-module.exports={MODEL,TTS_MODEL,json,parseBody,requireKey,geminiGenerate,dataUrl};
+async function parseBody(req,max=15_000_000){if(req.body&&typeof req.body==='object') return req.body;let raw='';for await(const c of req){raw+=c;if(raw.length>max)throw Object.assign(new Error('Request too large.'),{status:413,code:'PAYLOAD_TOO_LARGE'});}try{return JSON.parse(raw||'{}')}catch{throw Object.assign(new Error('Invalid JSON body.'),{status:400,code:'INVALID_JSON'})}}
+function key(){if(!process.env.GEMINI_API_KEY)throw Object.assign(new Error('GEMINI_API_KEY is not configured in Vercel.'),{status:503,code:'AI_NOT_CONFIGURED'});return process.env.GEMINI_API_KEY;}
+function clamp(n,min,max){n=Number(n);return Number.isFinite(n)?Math.max(min,Math.min(max,n)):min;}
+function dataUrl(v,max=7_500_000){const m=String(v||'').match(/^data:(image\/(?:jpeg|jpg|png|webp));base64,(.+)$/s);if(!m)throw Object.assign(new Error('Unsupported image format.'),{status:415,code:'BAD_IMAGE'});if(m[2].length>max)throw Object.assign(new Error('Image is too large. Please use a smaller photo.'),{status:413,code:'IMAGE_TOO_LARGE'});return {mime:m[1]==='image/jpg'?'image/jpeg':m[1],data:m[2]};}
+async function gemini(parts,{schema,system='',temperature=.2,maxTokens=1800}={}){const c=new AbortController();const t=setTimeout(()=>c.abort(),28_000);try{const body={contents:[{role:'user',parts}],generationConfig:{temperature,maxOutputTokens:maxTokens}};if(system)body.systemInstruction={parts:[{text:system}]};if(schema){body.generationConfig.responseMimeType='application/json';body.generationConfig.responseSchema=schema;}const r=await fetch(`${BASE}${encodeURIComponent(process.env.GEMINI_MODEL||MODEL)}:generateContent`,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key()},body:JSON.stringify(body),signal:c.signal});const raw=await r.text();let d;try{d=JSON.parse(raw)}catch{d={}}if(!r.ok)throw Object.assign(new Error(d?.error?.message||`Gemini HTTP ${r.status}`),{status:r.status,code:'GEMINI_ERROR'});const text=d?.candidates?.[0]?.content?.parts?.filter(p=>typeof p.text==='string').map(p=>p.text).join('\n').trim();if(!text)throw Object.assign(new Error('AI returned an empty response.'),{status:502,code:'EMPTY_AI_RESPONSE'});return text;}catch(e){if(e.name==='AbortError')throw Object.assign(new Error('AI request timed out.'),{status:504,code:'AI_TIMEOUT'});throw e}finally{clearTimeout(t)}}
+module.exports={MODEL,json,parseBody,key,clamp,dataUrl,gemini};

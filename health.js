@@ -1,2 +1,1 @@
-const {MODEL,TTS_MODEL,json}=require('./_lib');
-module.exports=(req,res)=>json(res,200,{ok:true,version:'19.0.0',aiConfigured:Boolean(process.env.GEMINI_API_KEY),model:MODEL,ttsModel:TTS_MODEL,time:new Date().toISOString()});
+const {MODEL,json}=require('./_lib');module.exports=(req,res)=>{if(req.method!=='GET')return json(res,405,{ok:false,error:'GET required'});return json(res,200,{ok:true,service:'SmartMeal API',version:'22.0.0',model:MODEL,aiConfigured:Boolean(process.env.GEMINI_API_KEY),time:new Date().toISOString()});};

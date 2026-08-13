@@ -1,17 +1,4 @@
-# Smart Meal PRO v19
-Commercial-style PWA for AI meal analysis, voice input, recipes, history, search, and bilingual/trilingual UI.
+# Smart Meal PRO v22
+Commercial-ready PWA source with recipe library, AI meal analysis, meal planner, shopping list, favorites, history, multilingual UI, and Vercel backend.
 
-## Vercel
-- Root Directory: repository root
-- Framework Preset: Other / None
-- Output Directory: .
-- Environment Variable: `GEMINI_API_KEY`
-- Optional: `GEMINI_MODEL`, `GEMINI_TTS_MODEL`
-
-## API
-- `/api/health`
-- `/api/ai`
-- `/api/voice`
-- `/api/tts`
-
-The AI key must stay on the server.
+Set `GEMINI_API_KEY` in Vercel Environment Variables, then redeploy.
