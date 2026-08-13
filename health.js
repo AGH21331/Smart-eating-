@@ -1,1 +1,9 @@
-module.exports=(req,res)=>{res.setHeader('Cache-Control','no-store');res.setHeader('Content-Type','application/json; charset=utf-8');if(req.method!=='GET')return res.status(405).json({ok:false,error:'Method not allowed'});res.status(200).json({ok:true,aiConfigured:Boolean(process.env.GEMINI_API_KEY),model:process.env.GEMINI_MODEL||'gemini-3.6-flash',version:'16.0.0'})};
+const { MODEL, TTS_MODEL, json } = require('../lib/gemini');
+module.exports = async (req, res) => json(res, 200, {
+  ok: true,
+  version: '18.0.0',
+  aiConfigured: Boolean(process.env.GEMINI_API_KEY),
+  model: MODEL,
+  ttsModel: TTS_MODEL,
+  timestamp: new Date().toISOString()
+});

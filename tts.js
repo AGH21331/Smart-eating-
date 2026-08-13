@@ -1,1 +1,20 @@
-module.exports=async(req,res)=>{res.setHeader('Content-Type','application/json; charset=utf-8');if(req.method!=='POST')return res.status(405).json({error:'Method not allowed'});if(!process.env.GEMINI_API_KEY)return res.status(503).json({error:'GEMINI_API_KEY is missing in Vercel',code:'AI_NOT_CONFIGURED'});try{const text=String(req.body?.text||'').slice(0,1800);if(!text)return res.status(400).json({error:'No text'});const lang=req.body?.language==='fr'?'French':req.body?.language==='en'?'English':'Arabic';const r=await fetch('https://generativelanguage.googleapis.com/v1beta/interactions',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':process.env.GEMINI_API_KEY,'Api-Revision':'2026-05-20'},body:JSON.stringify({model:'gemini-3.1-flash-tts-preview',input:`Speak naturally in ${lang}. Read only this text: ${text}`,response_format:{type:'audio'},generation_config:{speech_config:[{voice:'Kore'}]}})});const raw=await r.text();let d;try{d=JSON.parse(raw)}catch{return res.status(502).json({error:`TTS returned non-JSON HTTP ${r.status}`})}if(!r.ok)return res.status(502).json({error:d?.error?.message||`TTS HTTP ${r.status}`});const data=d?.output_audio?.data;if(!data)return res.status(502).json({error:'TTS returned no audio'});return res.status(200).json({audioBase64:data,mime:'audio/L16;rate=24000;channels=1'})}catch(e){return res.status(500).json({error:e.message||'TTS failed'})}};
+const { TTS_MODEL, json, body, callGemini } = require('../lib/gemini');
+module.exports = async (req, res) => {
+  try {
+    if (req.method !== 'POST') return json(res, 405, { error: 'POST required' });
+    const b = await body(req);
+    const text = String(b.text || '').trim().slice(0, 2500);
+    if (!text) return json(res, 400, { error: 'Missing text.' });
+    const language = b.language === 'fr' ? 'French' : b.language === 'en' ? 'English' : 'Arabic';
+    const x = await callGemini({
+      model: TTS_MODEL,
+      input: `Synthesize natural, clear ${language} speech. Speak only this transcript:\n${text}`,
+      response_format: { type: 'audio', mime_type: 'audio/wav', delivery: 'inline', sample_rate: 24000 },
+      generation_config: { speech_config: [{ voice: 'Kore' }] },
+      store: false
+    });
+    const data = x?.output_audio?.data;
+    if (!data) throw Object.assign(new Error('No audio was returned by Gemini.'), { status: 502, code: 'NO_AUDIO' });
+    return json(res, 200, { audioBase64: data, mimeType: 'audio/wav', model: TTS_MODEL });
+  } catch (e) { return json(res, e.status || 500, { error: e.message || 'Server error', code: e.code || 'SERVER_ERROR' }); }
+};

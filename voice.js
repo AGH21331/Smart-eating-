@@ -1,4 +1,20 @@
-const MODEL=process.env.GEMINI_MODEL||'gemini-3.6-flash';
-function parse(req){if(req.body&&typeof req.body==='object')return req.body;try{return JSON.parse(req.body||'{}')}catch{return {}}}
-function audio(data){if(typeof data!=='string')return null;const m=data.match(/^data:(audio\/(?:wav|mpeg|mp3|aac|ogg|flac|webm));base64,(.+)$/i);return m?{mime_type:m[1]==='audio/mp3'?'audio/mpeg':m[1],data:m[2]}:null}
-module.exports=async(req,res)=>{res.setHeader('Content-Type','application/json; charset=utf-8');if(req.method!=='POST')return res.status(405).json({error:'Method not allowed'});if(!process.env.GEMINI_API_KEY)return res.status(503).json({error:'GEMINI_API_KEY is missing in Vercel',code:'AI_NOT_CONFIGURED'});try{const b=parse(req);const a=audio(b.audio);if(!a)return res.status(400).json({error:'Unsupported or missing audio'});const lang=b.language==='fr'?'French':b.language==='en'?'English':'Arabic';const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':process.env.GEMINI_API_KEY},body:JSON.stringify({contents:[{role:'user',parts:[{inline_data:a},{text:`Transcribe exactly what the speaker said. Expected language: ${lang}. Return only the transcript.`}]}]})});const raw=await r.text();let d;try{d=JSON.parse(raw)}catch{return res.status(502).json({error:`Gemini returned non-JSON HTTP ${r.status}`})}if(!r.ok)return res.status(502).json({error:d?.error?.message||`Gemini HTTP ${r.status}`});const text=d?.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('').trim()||'';return res.status(200).json({text})}catch(e){return res.status(500).json({error:e.message||'Voice request failed'})}};
+const { MODEL, json, body, callGemini, outputText, dataUrl } = require('../lib/gemini');
+module.exports = async (req, res) => {
+  try {
+    if (req.method !== 'POST') return json(res, 405, { error: 'POST required' });
+    const b = await body(req);
+    const a = dataUrl(b.audio);
+    if (!a) return json(res, 400, { error: 'Missing audio.' });
+    const supported = ['audio/wav','audio/mp3','audio/mpeg','audio/aac','audio/ogg','audio/flac','audio/aiff'];
+    if (!supported.includes(a.mime)) return json(res, 400, { error: 'Unsupported audio format. Please use WAV, MP3, AAC, OGG, FLAC or AIFF.' });
+    const x = await callGemini({
+      model: MODEL,
+      input: [
+        { type: 'text', text: `Transcribe this recording exactly as spoken. Language: ${b.language || 'ar'}. Return only the transcript, with no commentary.` },
+        { type: 'audio', data: a.data, mime_type: a.mime }
+      ],
+      store: false
+    });
+    return json(res, 200, { text: outputText(x), model: MODEL });
+  } catch (e) { return json(res, e.status || 500, { error: e.message || 'Server error', code: e.code || 'SERVER_ERROR' }); }
+};

@@ -1,5 +1,38 @@
-const MODEL=process.env.GEMINI_MODEL||'gemini-3.6-flash';
-const SCHEMA={type:'object',properties:{isFood:{type:'boolean'},mealName:{type:'string'},description:{type:'string'},confidence:{type:'number'},ingredients:{type:'array',items:{type:'object',properties:{name:{type:'string'},quantity:{type:'string'}},required:['name','quantity']}},nutrition:{type:'object',properties:{calories:{type:'integer'},protein:{type:'integer'},carbs:{type:'integer'},fat:{type:'integer'}},required:['calories','protein','carbs','fat']},suggestions:{type:'array',items:{type:'string'}}},required:['isFood','mealName','description','confidence','ingredients','nutrition','suggestions']};
-function parse(req){if(req.body&&typeof req.body==='object')return req.body;try{return JSON.parse(req.body||'{}')}catch{return {}}}
-function img(data){if(typeof data!=='string')return null;const m=data.match(/^data:(image\/(?:jpeg|jpg|png|webp));base64,(.+)$/i);return m?{mime_type:m[1].toLowerCase().replace('image/jpg','image/jpeg'),data:m[2]}:null}
-module.exports=async(req,res)=>{res.setHeader('Content-Type','application/json; charset=utf-8');if(req.method!=='POST')return res.status(405).json({error:'Method not allowed'});if(!process.env.GEMINI_API_KEY)return res.status(503).json({error:'GEMINI_API_KEY is missing in Vercel',code:'AI_NOT_CONFIGURED'});try{const b=parse(req);const image=img(b.image);const text=String(b.text||'').slice(0,5000);const lang=b.language==='fr'?'French':b.language==='en'?'English':'Arabic';if(!image&&!text)return res.status(400).json({error:'Provide a meal image or description.'});const parts=[];if(image)parts.push({inline_data:image});parts.push({text:`You are a careful nutrition estimation engine for Smart Meal. Respond in ${lang}. Analyze the provided meal image and/or description. Give conservative estimates, state uncertainty through confidence, and never claim medical certainty. If not food, set isFood=false and nutrition values to 0. Return JSON only.`+`\nUser description: ${text||'(none)'}`});const resp=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':process.env.GEMINI_API_KEY},body:JSON.stringify({contents:[{role:'user',parts}],generationConfig:{responseMimeType:'application/json',responseSchema:SCHEMA}})});const raw=await resp.text();let data;try{data=JSON.parse(raw)}catch{return res.status(502).json({error:`Gemini returned non-JSON HTTP ${resp.status}`,code:'GEMINI_BAD_RESPONSE'})}if(!resp.ok)return res.status(502).json({error:data?.error?.message||`Gemini HTTP ${resp.status}`,code:'GEMINI_ERROR'});const txt=data?.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'';if(!txt)return res.status(502).json({error:'Gemini returned an empty response',code:'GEMINI_EMPTY'});let out;try{out=JSON.parse(txt)}catch{return res.status(502).json({error:'Gemini returned invalid JSON',code:'GEMINI_JSON_ERROR'})}return res.status(200).json(out)}catch(e){return res.status(500).json({error:e.message||'AI request failed',code:'AI_SERVER_ERROR'})}};
+const { MODEL, json, body, callGemini, outputText, dataUrl } = require('../lib/gemini');
+const schema = {
+  type: 'object',
+  properties: {
+    mealName: { type: 'string' },
+    description: { type: 'string' },
+    confidence: { type: 'number' },
+    nutrition: {
+      type: 'object',
+      properties: {
+        calories: { type: 'number' }, protein: { type: 'number' }, carbs: { type: 'number' }, fat: { type: 'number' }
+      }, required: ['calories','protein','carbs','fat']
+    },
+    ingredients: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, quantity: { type: 'string' } }, required: ['name','quantity'] } },
+    cookingMethod: { type: 'array', items: { type: 'string' } },
+    advice: { type: 'array', items: { type: 'string' } }
+  },
+  required: ['mealName','description','confidence','nutrition','ingredients','cookingMethod','advice']
+};
+module.exports = async (req, res) => {
+  try {
+    if (req.method !== 'POST') return json(res, 405, { error: 'POST required' });
+    const b = await body(req);
+    const lang = b.language || 'ar';
+    const parts = [{ type: 'text', text: `You are Smart Meal PRO, a commercial nutrition assistant. Analyze the meal conservatively. Language: ${lang}. Return only JSON matching the supplied schema. If calories/macros are uncertain, estimate and lower confidence. Never claim medical diagnosis. User description: ${String(b.text || '').slice(0, 6000)}` }];
+    const image = dataUrl(b.image);
+    if (image) parts.push({ type: 'image', data: image.data, mime_type: image.mime });
+    const x = await callGemini({
+      model: MODEL,
+      input: [{ type: 'text', text: parts[0].text }, ...(image ? [{ type: 'image', data: image.data, mime_type: image.mime }] : [])],
+      response_format: { type: 'text', mime_type: 'application/json', schema },
+      store: false
+    });
+    let result;
+    try { result = JSON.parse(outputText(x)); } catch { throw Object.assign(new Error('AI returned invalid JSON.'), { status: 502, code: 'BAD_AI_JSON' }); }
+    return json(res, 200, { ...result, model: MODEL });
+  } catch (e) { return json(res, e.status || 500, { error: e.message || 'Server error', code: e.code || 'SERVER_ERROR' }); }
+};
