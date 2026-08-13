@@ -1,7 +1,10 @@
 {
   "name": "smartmeal",
   "private": true,
-  "version": "13.0.0",
+  "version": "13.1.0",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "check": "node --check api/ai.js && node --check api/voice.js && node --check api/health.js"
   }
