@@ -1,4 +1,1 @@
-{
-  "private": true,
-  "type": "commonjs"
-}
+{"name":"smartmeal-final","private":true,"version":"16.0.0","engines":{"node":">=20"}}
