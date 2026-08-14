@@ -1,11 +1,68 @@
 const MODEL=process.env.GEMINI_MODEL||'gemini-3.6-flash';
 const BASE='https://generativelanguage.googleapis.com/v1beta/models/';
-const WINDOW_MS=60_000,MAX_REQ=45;const hits=new Map();
-function json(res,status,body){res.statusCode=status;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');const id=globalThis.crypto?.randomUUID?.()||`${Date.now()}-${Math.random()}`;res.setHeader('X-Request-Id',id);res.end(JSON.stringify(body));}
-function rateLimit(req){const now=Date.now();const key=String(req.headers?.['x-forwarded-for']||req.socket?.remoteAddress||'anon').split(',')[0];const prev=hits.get(key)||[];const kept=prev.filter(t=>now-t<WINDOW_MS);if(kept.length>=MAX_REQ)throw Object.assign(new Error('Too many requests. Please try again in a minute.'),{status:429,code:'RATE_LIMITED'});kept.push(now);hits.set(key,kept);if(hits.size>2000){for(const [k,v] of hits)if(v.every(t=>now-t>=WINDOW_MS))hits.delete(k)}}
-async function parseBody(req,max=15_000_000){if(req.body&&typeof req.body==='object')return req.body;let raw='';for await(const c of req){raw+=c;if(raw.length>max)throw Object.assign(new Error('Request too large.'),{status:413,code:'PAYLOAD_TOO_LARGE'})}try{return JSON.parse(raw||'{}')}catch{throw Object.assign(new Error('Invalid JSON body.'),{status:400,code:'INVALID_JSON'})}}
-function key(){if(!process.env.GEMINI_API_KEY)throw Object.assign(new Error('GEMINI_API_KEY is not configured in Vercel.'),{status:503,code:'AI_NOT_CONFIGURED'});return process.env.GEMINI_API_KEY}
-function clamp(n,min,max){n=Number(n);return Number.isFinite(n)?Math.max(min,Math.min(max,n)):min}
-function dataUrl(v,max=7_500_000){const m=String(v||'').match(/^data:(image\/(?:jpeg|jpg|png|webp));base64,(.+)$/s);if(!m)throw Object.assign(new Error('Unsupported image format.'),{status:415,code:'BAD_IMAGE'});if(m[2].length>max)throw Object.assign(new Error('Image is too large. Please use a smaller photo.'),{status:413,code:'IMAGE_TOO_LARGE'});return{mime:m[1]==='image/jpg'?'image/jpeg':m[1],data:m[2]}}
-async function gemini(parts,{schema,system='',temperature=.2,maxTokens=1800,retries=1}={}){let last;for(let attempt=0;attempt<=retries;attempt++){const c=new AbortController();const t=setTimeout(()=>c.abort(),28_000);try{const body={contents:[{role:'user',parts}],generationConfig:{maxOutputTokens:maxTokens}};if(system)body.systemInstruction={parts:[{text:system}]};if(schema){body.generationConfig.responseMimeType='application/json';body.generationConfig.responseSchema=schema}const r=await fetch(`${BASE}${encodeURIComponent(process.env.GEMINI_MODEL||MODEL)}:generateContent`,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key()},body:JSON.stringify(body),signal:c.signal});const raw=await r.text();let d;try{d=JSON.parse(raw)}catch{d={}}if(!r.ok){last=Object.assign(new Error(d?.error?.message||`Gemini HTTP ${r.status}`),{status:r.status,code:'GEMINI_ERROR'});if(attempt<retries && [429,500,502,503,504].includes(r.status)){await new Promise(res=>setTimeout(res,350*(attempt+1)));continue}throw last}const text=d?.candidates?.[0]?.content?.parts?.filter(p=>typeof p.text==='string').map(p=>p.text).join('\n').trim();if(!text)throw Object.assign(new Error('AI returned an empty response.'),{status:502,code:'EMPTY_AI_RESPONSE'});return text}catch(e){last=e;if(e.name==='AbortError')last=Object.assign(new Error('AI request timed out.'),{status:504,code:'AI_TIMEOUT'});if(attempt<retries && ['AI_TIMEOUT'].includes(last.code))continue;throw last}finally{clearTimeout(t)}}throw last}
-module.exports={MODEL,json,rateLimit,parseBody,key,clamp,dataUrl,gemini};
+const WINDOW_MS=60000,MAX_REQ=30,MAX_KEYS=2000;
+const hits=new Map();
+function json(res,status,body){
+  res.statusCode=status;
+  res.setHeader('Content-Type','application/json; charset=utf-8');
+  res.setHeader('Cache-Control','no-store');
+  res.setHeader('X-Content-Type-Options','nosniff');
+  res.setHeader('Referrer-Policy','no-referrer');
+  res.setHeader('X-Frame-Options','DENY');
+  const id=globalThis.crypto?.randomUUID?.()||`${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  res.setHeader('X-Request-Id',id);
+  res.end(JSON.stringify(body));
+}
+function rateLimit(req){
+  const now=Date.now();
+  const key=String(req.headers?.['x-forwarded-for']||req.socket?.remoteAddress||'anon').split(',')[0].trim();
+  const list=(hits.get(key)||[]).filter(t=>now-t<WINDOW_MS);
+  if(list.length>=MAX_REQ)throw Object.assign(new Error('Too many requests. Try again in a minute.'),{status:429,code:'RATE_LIMITED'});
+  list.push(now); hits.set(key,list);
+  if(hits.size>MAX_KEYS){for(const [k,v] of hits){if(!v.some(t=>now-t<WINDOW_MS))hits.delete(k);}}
+}
+async function body(req,max=12000000){
+  if(req.body&&typeof req.body==='object')return req.body;
+  let raw='';
+  for await(const chunk of req){raw+=chunk;if(raw.length>max)throw Object.assign(new Error('Request too large.'),{status:413,code:'PAYLOAD_TOO_LARGE'});}
+  try{return JSON.parse(raw||'{}')}catch{throw Object.assign(new Error('Invalid JSON.'),{status:400,code:'INVALID_JSON'})}
+}
+function apiKey(){if(!process.env.GEMINI_API_KEY)throw Object.assign(new Error('GEMINI_API_KEY is not configured in Vercel.'),{status:503,code:'AI_NOT_CONFIGURED'});return process.env.GEMINI_API_KEY}
+function imageData(v){
+  const m=String(v||'').match(/^data:(image\/(?:jpeg|jpg|png|webp));base64,(.+)$/s);
+  if(!m)throw Object.assign(new Error('Unsupported image format. Use JPEG, PNG or WebP.'),{status:415,code:'BAD_IMAGE'});
+  if(m[2].length>7500000)throw Object.assign(new Error('Image is too large.'),{status:413,code:'IMAGE_TOO_LARGE'});
+  return {inline_data:{mime_type:m[1]==='image/jpg'?'image/jpeg':m[1],data:m[2]}};
+}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function gemini(parts,{schema,maxTokens=2200}={}){
+  const bodyBase={contents:[{role:'user',parts}],generationConfig:{maxOutputTokens:maxTokens}};
+  if(schema){bodyBase.generationConfig.responseMimeType='application/json';bodyBase.generationConfig.responseSchema=schema;}
+  let lastErr=null;
+  for(let attempt=0;attempt<3;attempt++){
+    const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),28000);
+    try{
+      const r=await fetch(`${BASE}${encodeURIComponent(MODEL)}:generateContent`,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':apiKey()},body:JSON.stringify(bodyBase),signal:ctrl.signal});
+      const text=await r.text();let d;try{d=JSON.parse(text)}catch{d={}};
+      if(!r.ok){
+        const retryable=r.status===429||r.status>=500;
+        lastErr=Object.assign(new Error(d?.error?.message||`Gemini HTTP ${r.status}`),{status:r.status,code:'GEMINI_ERROR'});
+        if(retryable&&attempt<2){await sleep(500*(attempt+1));continue;}
+        throw lastErr;
+      }
+      const out=d?.candidates?.[0]?.content?.parts?.filter(p=>typeof p.text==='string').map(p=>p.text).join('').trim();
+      if(!out)throw Object.assign(new Error('Empty AI response.'),{status:502,code:'EMPTY_AI_RESPONSE'});
+      return out;
+    }catch(e){
+      if(e.name==='AbortError')throw Object.assign(new Error('AI request timed out.'),{status:504,code:'AI_TIMEOUT'});
+      if(e.code==='AI_NOT_CONFIGURED')throw e;
+      if(e.code==='GEMINI_ERROR'){
+        if(e.status===429||e.status>=500){lastErr=e;if(attempt<2){await sleep(500*(attempt+1));continue;}}
+        throw e;
+      }
+      throw Object.assign(new Error('AI network request failed.'),{status:502,code:'AI_NETWORK_ERROR'});
+    }finally{clearTimeout(timer)}
+  }
+  throw lastErr||Object.assign(new Error('AI request failed.'),{status:502,code:'AI_FAILED'});
+}
+module.exports={MODEL,json,rateLimit,body,apiKey,imageData,gemini};
